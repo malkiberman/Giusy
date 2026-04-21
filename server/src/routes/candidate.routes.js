@@ -4,5 +4,7 @@ const candidateController = require('../controllers/candidate.controller');
 
 router.post('/', candidateController.createCandidate);
 router.get('/', candidateController.getAllCandidates);
+router.get('/WithSomeAnaysis', candidateController.getAllCandidatesWithSomeAnaysis);
+router.get('/:id', candidateController.getCandidateByIdWithAnaysis);
 
 module.exports = router;

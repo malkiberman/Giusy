@@ -1,10 +1,11 @@
 require('dotenv').config();
 const axios = require('axios');
+const { log } = require('console');
 const fs = require('fs/promises');
 const path = require('path');
 
 function resolveEnvFilePath(envKey) {
-  const rawPath = process.env[envKey];
+  const rawPath = process.env.PROMPT_FILE_PATH;
   if (!rawPath) return null;
   return path.isAbsolute(rawPath) ? rawPath : path.join(__dirname, '..', '..', rawPath);
 }
@@ -20,11 +21,21 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   let basePrompt = '';
   const promptPath = resolveEnvFilePath('PROMPT_FILE_PATH');
   if (promptPath) {
-    basePrompt = await fs.readFile(promptPath, 'utf8').catch(() => '');
+    try {
+   basePrompt = await fs.readFile(promptPath, 'utf8');
+ //const basePrompt = await fs.readFile(promptPath);
+ // console.log('data:', basePrompt);
+} catch (err) { 
+  console.log('errrrrrrrr:', basePrompt);
+  console.error('READ ERROR:', err);
+}
+    //basePrompt = await fs.readFile(promptPath, 'utf8').catch(() => '');
+  // console.log('!!!!!!', basePrompt);
   }
 
   // Build the full prompt
-  let fullPrompt = (basePrompt || '').trim();
+   let fullPrompt = basePrompt;
+  console.log('*****fullPrompt prompt :', basePrompt,'-------');
   if (questions && questions.length) {
     fullPrompt += '\n\nQuestions:\n' + questions.map((q, i) => `${i + 1}. ${q}`).join('\n');
   }
