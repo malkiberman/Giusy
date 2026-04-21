@@ -4,7 +4,10 @@ import AppHeader from '../components/AppHeader';
 import styles from './LandingPage.module.css';
 import RTLLayout from '../components/layout/RTLLayout';
 import { CURRENT_CANDIDATE_KEY as LS_KEY } from '../config/storageKeys';
-import { createCandidate } from '../services/api';
+
+// *** הוספתי את השורה הזו - ודאי שהנתיב נכון אצלך! ***
+import { createCandidate } from '../services/api'; 
+
 export default function LandingPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ fullName: '', email: '', phone: '' });
@@ -20,60 +23,57 @@ export default function LandingPage() {
     return e;
   }
 
-async function handleSubmit(e) {
-  e.preventDefault();
-  console.log("1. handleSubmit triggered"); // בדיקה שהפונקציה התחילה
+  async function handleSubmit(e) {
+    e.preventDefault();
+    console.log("🚀 הכפתור נלחץ!"); // חייב להופיע ב-F12
 
-  const errs = validate();
-  if (Object.keys(errs).length) { 
-    console.log("2. Validation errors:", errs);
-    setErrors(errs); 
-    return; 
+    const errs = validate();
+    if (Object.keys(errs).length) { 
+      console.log("❌ טעויות בטופס:", errs);
+      setErrors(errs); 
+      return; 
+    }
+
+    setIsLoading(true);
+    try {
+      console.log("📡 שולח נתונים לשרת...", form);
+      
+      const newCandidate = await createCandidate(form);
+      
+      console.log("✅ מועמד נוצר בהצלחה:", newCandidate);
+      
+      localStorage.setItem(LS_KEY, JSON.stringify(newCandidate));
+      
+      console.log("🏃 עובר לעמוד הראיון...");
+      navigate('/interview');
+    } catch (error) {
+      console.error("🔥 שגיאה קריטית ב-Submit:", error);
+      setErrors({ general: 'משהו השתבש בתקשורת עם השרת.' });
+    } finally {
+      setIsLoading(false);
+    }
   }
 
-  setIsLoading(true);
-  try {
-    console.log("3. Calling API with data:", form);
-    const newCandidate = await createCandidate(form);
-    
-    console.log("4. Server responded:", newCandidate);
-    
-    localStorage.setItem(LS_KEY, JSON.stringify(newCandidate));
-    navigate('/interview');
-  } catch (error) {
-    console.error("5. Catch block triggered:", error);
-    setErrors({ general: 'שגיאה ברישום המועמד. נסו שוב.' });
-  } finally {
-    setIsLoading(false);
-  }
-}
-
-  function handleChange(field) {
-    return (e) => {
-      setForm((prev) => ({ ...prev, [field]: e.target.value }));
-      if (errors[field]) setErrors((prev) => ({ ...prev, [field]: '' }));
-    };
-  }
+  const handleChange = (field) => (e) => {
+    setForm({ ...form, [field]: e.target.value });
+    if (errors[field]) setErrors({ ...errors, [field]: '' });
+  };
 
   return (
-    <RTLLayout className={styles.page}>
-      <AppHeader 
-      />
-      
-      <div className={styles.body}>
-        <div className={`${styles.card} animate-slide-up`}>
-          <div className={styles.headerContent}>
-            <h1 className={styles.title}>ברוך הבא לראיון שלך</h1>
-            <p className={styles.subtitle}>אנא מלא את הפרטים שלך כדי להתחיל</p>
-          </div>
-
+    <RTLLayout>
+      <div className={styles.container}>
+        <AppHeader title="Giusy AI" subtitle="התחלת תהליך מיון חכם" />
+        
+        <div className={styles.card}>
           <form onSubmit={handleSubmit} className={styles.form}>
+            {errors.general && <div style={{color: 'red', marginBottom: '10px'}}>{errors.general}</div>}
+            
             <Field
               label="שם מלא"
               value={form.fullName}
               onChange={handleChange('fullName')}
               error={errors.fullName}
-              placeholder="השם המלא שלך"
+              placeholder="ישראל ישראלי"
             />
             <Field
               label="אימייל"
@@ -99,32 +99,25 @@ async function handleSubmit(e) {
               {isLoading ? 'טוען...' : 'התחל ראיון ←'}
             </button>
           </form>
-
-          <div className={styles.footer}>
-            <p className={styles.footerText}>
-              בתהליך זה קרא ללא הרגלים ממצלמתך<br />
-              כל תשובה תיבחן ב-5 מדדים<br />
-              הצליח כאן = התחלה של עתידך הבא
-            </p>
-          </div>
         </div>
       </div>
     </RTLLayout>
   );
 }
 
+// פונקציית העזר Field חייבת להישאר בסוף הקובץ כפי שהייתה
 function Field({ label, value, onChange, error, placeholder, type = 'text' }) {
   return (
     <div className={styles.field}>
       <label className={styles.label}>{label}</label>
       <input
         type={type}
+        className={error ? styles.inputError : styles.input}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className={`${styles.input} ${error ? styles.inputError : ''}`}
       />
-      {error && <span className={styles.error}>{error}</span>}
+      {error && <span className={styles.errorText}>{error}</span>}
     </div>
   );
 }
