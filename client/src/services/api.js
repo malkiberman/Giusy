@@ -42,40 +42,41 @@ async function firstSuccessful(paths, options = {}) {
 }
 
 export async function submitInterview(payload) {
+  const body = { ...(payload.candidate || {}), answers: payload.answers };
   const data = await firstSuccessful(
-    ['/conversation'],
-    { method: 'POST', body: JSON.stringify(payload) },
+    ['/api/candidates'],
+    { method: 'POST', body: JSON.stringify(body) },
   );
   return normalizeCandidate(data);
 }
 
 export async function fetchCandidates() {
-  const data = await firstSuccessful(['/candidates', '/conversations']);
-  const list = Array.isArray(data) ? data : data?.items || data?.candidates || [];
+  const data = await firstSuccessful(['/api/candidates']);
+  const list = Array.isArray(data) ? data : data?.candidates || [];
   return normalizeCandidates(list);
 }
 
 export async function fetchCandidateById(id) {
-  const candidate = await firstSuccessful([`/candidates/${id}`, `/conversations/${id}`]);
+  const allCandidates = await request('/api/candidates');
+  const list = Array.isArray(allCandidates) ? allCandidates : allCandidates?.candidates || [];
+  const candidate = list.find((c) => String(c._id) === String(id) || String(c.id) === String(id));
 
-  // Candidate model has conversationId; merge conversation data before normalizing
-  // so scores, summary, insights, rawAnswers, etc. are all available in one pass.
-  const conversationId = candidate.conversationId;
-  if (conversationId) {
-    try {
-      const conversation = await request(`/conversations/${conversationId}`);
-      // Conversation fields take precedence for analysis; candidate fields win for identity.
-      return normalizeCandidate({ ...conversation, ...candidate, conversationId });
-    } catch {
-      // Conversation unavailable — normalize with whatever we have.
-    }
+  if (!candidate) {
+    const err = new Error('Candidate not found');
+    err.status = 404;
+    throw err;
   }
 
-  return normalizeCandidate(candidate);
+  try {
+    const analysis = await request(`/api/analysis/${id}`);
+    return normalizeCandidate({ ...candidate, analysis });
+  } catch {
+    return normalizeCandidate(candidate);
+  }
 }
 
 export async function fetchConversationById(id) {
-  return request(`/conversations/${id}`);
+  return request(`/api/analysis/${id}`);
 }
 
 export async function createCandidate(payload) {
