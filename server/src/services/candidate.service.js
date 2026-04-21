@@ -15,6 +15,9 @@ class CandidateService {
     
     return candidate;
   }
+  async getAllCandidates() {
+    return await CandidateRepo.findAll(); 
+  }
 }
 
 module.exports = new CandidateService();
