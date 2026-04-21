@@ -43,7 +43,6 @@ export default function LandingPage() {
       console.log("✅ מועמד נוצר בהצלחה:", newCandidate);
       
       localStorage.setItem(LS_KEY, JSON.stringify(newCandidate));
-      
       console.log("🏃 עובר לעמוד הראיון...");
       navigate('/interview');
     } catch (error) {
