@@ -13,4 +13,22 @@ exports.getCandidateAnalysis = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+
+  exports.createAnalysis = async (req, res) => {
+  try {
+    const { candidateId, answers } = req.body;
+    // כאן אפשר להוסיף קריאה ל-AI Service של רותי בעתיד
+    const aiResults = { 
+      score: 0, // זמני עד שה-AI יעבוד
+      feedback: "הראיון הושלם בהצלחה",
+      answers 
+    };
+    
+    const analysis = await AnalysisService.createAnalysis(candidateId, aiResults);
+    res.status(201).json(analysis);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 };

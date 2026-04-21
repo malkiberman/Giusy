@@ -20,14 +20,27 @@ export default function LandingPage() {
     return e;
   }
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    const errs = validate();
-    if (Object.keys(errs).length) { setErrors(errs); return; }
-    setIsLoading(true);
-    localStorage.setItem(LS_KEY, JSON.stringify(form));
-    setTimeout(() => navigate('/interview'), 300);
+async function handleSubmit(e) {
+  e.preventDefault();
+  const errs = validate();
+  if (Object.keys(errs).length) { setErrors(errs); return; }
+
+  setIsLoading(true);
+  try {
+    // 1. רישום המועמד בשרת
+    const newCandidate = await createCandidate(form);
+    
+    // 2. שמירת המועמד (כולל ה-_id מהשרת) ב-LocalStorage
+    localStorage.setItem(LS_KEY, JSON.stringify(newCandidate));
+    
+    // 3. מעבר לדף הראיון
+    navigate('/interview');
+  } catch (error) {
+    setErrors({ general: 'שגיאה ברישום המועמד. נסו שוב.' });
+  } finally {
+    setIsLoading(false);
   }
+}
 
   function handleChange(field) {
     return (e) => {

@@ -21,38 +21,27 @@ export default function useInterview({ candidateInfo, onConversationEnd, reset }
     setMessages((prev) => [...prev, { from: 'bot', text }]);
   }
 
-  async function handleSubmit(finalAnswers) {
-    const candidateId = candidateInfo?.email || candidateInfo?.fullName || `candidate-${Date.now()}`;
+async function handleSubmit(finalAnswers) {
+  // נשלוף את ה-ID שקיבלנו מהשרת ושמרנו ב-candidateInfo
+  const candidateId = candidateInfo?._id || candidateInfo?.id;
 
-    const payload = {
-      candidateId,
-      candidate: {
-        fullName: candidateInfo?.fullName || '',
-        email: candidateInfo?.email || '',
-        phone: candidateInfo?.phone || '',
-      },
-      answers: finalAnswers.map((a) => a.answer),
-    };
-
-    console.log('🎤 [ראיון מסתיים] שליחה לשרת:');
-    console.log('📦 Payload:', JSON.stringify(payload, null, 2));
-
-    setSubmitting(true);
-    setSubmitError('');
-
-    try {
-      console.log('⏳ שליחה לשרת...');
-      const savedCandidate = await submitInterview(payload);
-      console.log('✅ התגובה מהשרת:', savedCandidate);
-      pushBot(DONE_MESSAGE);
-      onConversationEnd?.(savedCandidate);
-    } catch (error) {
-      console.error('❌ שגיאה בשלח הראיון:', error);
-      setSubmitError('לא הצלחנו לשמור את הראיון כרגע. נסה/י שוב בעוד כמה דקות.');
-    } finally {
-      setSubmitting(false);
-    }
+  if (!candidateId) {
+    setSubmitError('חסר מזהה מועמד. אנא נסה להירשם מחדש.');
+    return;
   }
+
+  setSubmitting(true);
+  try {
+    // שליחה ל-Endpoint החדש של ה-Analysis
+    const savedAnalysis = await submitInterviewAnalysis(candidateId, finalAnswers);
+    pushBot(DONE_MESSAGE);
+    onConversationEnd?.(savedAnalysis);
+  } catch (error) {
+    setSubmitError('לא הצלחנו לשמור את תשובות הראיון.');
+  } finally {
+    setSubmitting(false);
+  }
+}
 
   function submitAnswer(text) {
     const trimmed = text.trim();

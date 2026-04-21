@@ -2,6 +2,7 @@ import { normalizeCandidate, normalizeCandidates } from '../utils/candidateViewM
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
+// פונקציית העזר הקיימת שלך - אל תשני אותה
 async function request(path, options = {}) {
   const response = await fetch(`${BASE_URL}${path}`, {
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
@@ -20,66 +21,14 @@ async function request(path, options = {}) {
   return data;
 }
 
-async function firstSuccessful(paths, options = {}) {
-  let lastError = null;
+// --- פונקציות ה-API המעודכנות ---
 
-  for (let i = 0; i < paths.length; i++) {
-    const path = paths[i];
-    try {
-      return await request(path, options);
-    } catch (error) {
-      lastError = error;
-      if (error.status !== 404) {
-        throw error;
-      }
-      if (i < paths.length - 1) {
-        console.warn(`[API] ${path} returned 404, falling back to ${paths[i + 1]}`);
-      }
-    }
-  }
-
-  throw lastError || new Error('No API path succeeded.');
-}
-
-export async function submitInterview(payload) {
-  const body = { ...(payload.candidate || {}), answers: payload.answers };
-  const data = await firstSuccessful(
-    ['/api/candidates'],
-    { method: 'POST', body: JSON.stringify(body) },
-  );
-  return normalizeCandidate(data);
-}
-
-export async function fetchCandidates() {
-  const data = await firstSuccessful(['/api/candidates']);
-  const list = Array.isArray(data) ? data : data?.candidates || [];
-  return normalizeCandidates(list);
-}
-
-export async function fetchCandidateById(id) {
-  const allCandidates = await request('/api/candidates');
-  const list = Array.isArray(allCandidates) ? allCandidates : allCandidates?.candidates || [];
-  const candidate = list.find((c) => String(c._id) === String(id) || String(c.id) === String(id));
-
-  if (!candidate) {
-    const err = new Error('Candidate not found');
-    err.status = 404;
-    throw err;
-  }
-
-  try {
-    const analysis = await request(`/api/analysis/${id}`);
-    return normalizeCandidate({ ...candidate, analysis });
-  } catch {
-    return normalizeCandidate(candidate);
-  }
-}
-
-export async function fetchConversationById(id) {
-  return request(`/api/analysis/${id}`);
-}
-
+/**
+ * שלב 1: יצירת מועמד חדש (בדף הנחיתה)
+ * מחזיר את המועמד מה-DB כולל ה-_id שלו
+ */
 export async function createCandidate(payload) {
+  // payload: { fullName, email, phone }
   const data = await request('/api/candidates', {
     method: 'POST',
     body: JSON.stringify(payload),
@@ -87,6 +36,45 @@ export async function createCandidate(payload) {
   return normalizeCandidate(data);
 }
 
-export async function fetchAnalysis(candidateId) {
-  return request(`/api/analysis/${candidateId}`);
+/**
+ * שלב 2: שליחת תשובות הראיון לניתוח (בסוף הראיון)
+ * מקשר בין ה-ID הקיים לתשובות החדשות
+ */
+export async function submitInterviewAnalysis(candidateId, answers) {
+  // שולחים ל-endpoint של ה-analysis את ה-ID והתשובות
+  const data = await request('/api/analysis', {
+    method: 'POST',
+    body: JSON.stringify({ candidateId, answers }),
+  });
+  return data; // מחזיר את אובייקט הניתוח (Analysis)
 }
+
+/**
+ * שליפת כל המועמדים (עבור דף הניהול/Admin)
+ */
+export async function fetchCandidates() {
+  const data = await request('/api/candidates');
+  const list = Array.isArray(data) ? data : data?.candidates || [];
+  return normalizeCandidates(list);
+}
+
+/**
+ * שליפת מועמד ספציפי כולל הניתוח שלו
+ */
+export async function fetchCandidateById(id) {
+  const candidate = await request(`/api/candidates/${id}`);
+  
+  try {
+    const analysis = await request(`/api/analysis/${id}`);
+    return normalizeCandidate({ ...candidate, analysis });
+  } catch {
+    // אם אין עדיין ניתוח, מחזירים רק את המועמד
+    return normalizeCandidate(candidate);
+  }
+}
+
+// פונקציה תומכת אחורנית למי שעדיין משתמש בשם הישן
+export const submitInterview = async (payload) => {
+    // אם הקוד הישן שלכן שולח אובייקט עם candidateId, נתמוך בזה
+    return await submitInterviewAnalysis(payload.candidateId, payload.answers);
+};
