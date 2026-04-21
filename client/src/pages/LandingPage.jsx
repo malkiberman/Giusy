@@ -4,7 +4,7 @@ import AppHeader from '../components/AppHeader';
 import styles from './LandingPage.module.css';
 import RTLLayout from '../components/layout/RTLLayout';
 import { CURRENT_CANDIDATE_KEY as LS_KEY } from '../config/storageKeys';
-
+import { createCandidate } from '../services/api';
 export default function LandingPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ fullName: '', email: '', phone: '' });
@@ -22,20 +22,26 @@ export default function LandingPage() {
 
 async function handleSubmit(e) {
   e.preventDefault();
+  console.log("1. handleSubmit triggered"); // בדיקה שהפונקציה התחילה
+
   const errs = validate();
-  if (Object.keys(errs).length) { setErrors(errs); return; }
+  if (Object.keys(errs).length) { 
+    console.log("2. Validation errors:", errs);
+    setErrors(errs); 
+    return; 
+  }
 
   setIsLoading(true);
   try {
-    // 1. רישום המועמד בשרת
+    console.log("3. Calling API with data:", form);
     const newCandidate = await createCandidate(form);
     
-    // 2. שמירת המועמד (כולל ה-_id מהשרת) ב-LocalStorage
-    localStorage.setItem(LS_KEY, JSON.stringify(newCandidate));
+    console.log("4. Server responded:", newCandidate);
     
-    // 3. מעבר לדף הראיון
+    localStorage.setItem(LS_KEY, JSON.stringify(newCandidate));
     navigate('/interview');
   } catch (error) {
+    console.error("5. Catch block triggered:", error);
     setErrors({ general: 'שגיאה ברישום המועמד. נסו שוב.' });
   } finally {
     setIsLoading(false);
