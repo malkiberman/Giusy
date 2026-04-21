@@ -23,31 +23,24 @@ export default function LandingPage() {
     return e;
   }
 
-  async function handleSubmit(e) {
+ async function handleSubmit(e) {
     e.preventDefault();
-    console.log("🚀 הכפתור נלחץ!"); // חייב להופיע ב-F12
-
     const errs = validate();
-    if (Object.keys(errs).length) { 
-      console.log("❌ טעויות בטופס:", errs);
-      setErrors(errs); 
-      return; 
-    }
+    if (Object.keys(errs).length) { setErrors(errs); return; }
 
     setIsLoading(true);
     try {
-      console.log("📡 שולח נתונים לשרת...", form);
-      
+      // 1. קריאה לשרת
       const newCandidate = await createCandidate(form);
       
-      console.log("✅ מועמד נוצר בהצלחה:", newCandidate);
-      
+      // 2. שמירה ב-LocalStorage - חובה להשתמש ב-newCandidate שחזר מהשרת!
       localStorage.setItem(LS_KEY, JSON.stringify(newCandidate));
-      console.log("🏃 עובר לעמוד הראיון...");
+      
+      // 3. ניווט רק אחרי שהשמירה הצליחה
       navigate('/interview');
     } catch (error) {
-      console.error("🔥 שגיאה קריטית ב-Submit:", error);
-      setErrors({ general: 'משהו השתבש בתקשורת עם השרת.' });
+      console.error("Error:", error);
+      setErrors({ general: 'שגיאה ברישום המועמד.' });
     } finally {
       setIsLoading(false);
     }
