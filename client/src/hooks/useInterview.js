@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { interviewIntro, interviewQuestions } from '../config/interviewQuestions';
-import { submitInterview } from '../services/api';
+import { submitInterviewAnalysis } from '../services/api';
 
 const DONE_MESSAGE = 'תודה רבה 🙏 הראיון נשמר בהצלחה ונחזור אליך בהקדם.';
 
