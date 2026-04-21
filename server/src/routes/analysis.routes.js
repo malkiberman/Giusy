@@ -4,5 +4,6 @@ const analysisController = require('../controllers/analysis.controller');
 
 // שליפת ניתוח לפי מזהה מועמד
 router.get('/:candidateId', analysisController.getCandidateAnalysis);
+router.post('/', analysisController.createCandidateAnalysis);
 
 module.exports = router;

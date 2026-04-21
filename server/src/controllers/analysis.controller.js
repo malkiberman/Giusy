@@ -1,5 +1,27 @@
 const AnalysisService = require('../services/analysis.service');
 
+
+exports.createCandidateAnalysis = async (req, res) => {
+  try {
+    const { candidateId, answers } = req.body;
+
+    if (!candidateId || !answers) {
+      return res.status(400).json({
+        message: "candidateId ו-answers הם שדות חובה"
+      });
+    }
+
+    const analysis = await AnalysisService.analyzeAndCreateConversation(
+      candidateId,
+      answers
+    );
+
+    return res.status(201).json(analysis);
+
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 exports.getCandidateAnalysis = async (req, res) => {
   try {
     const { candidateId } = req.params;
