@@ -28,12 +28,16 @@ async function request(path, options = {}) {
  * מחזיר את המועמד מה-DB כולל ה-_id שלו
  */
 export async function createCandidate(payload) {
-  // payload: { fullName, email, phone }
   const data = await request('/api/candidates', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
-  return normalizeCandidate(data);
+  
+  // במקום לסמוך על ה-Normalize המורכב, נחזיר את האובייקט כמו שהוא + ID שטוח
+  return {
+    ...data,
+    id: data._id || data.id // מבטיח שיהיה שדה id פשוט
+  };
 }
 
 /**
