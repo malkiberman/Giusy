@@ -7,6 +7,7 @@ class CandidateService {
     return await CandidateRepo.create(data);
   }
 
+
   async processAnswers(id, answers) {
     // 1. עדכון התשובות במועמד
     const candidate = await CandidateRepo.update(id, { answers, status: 'submitted' });
@@ -15,6 +16,11 @@ class CandidateService {
     
     return candidate;
   }
+
+  async getAllCandidates() {
+  return await CandidateRepo.findAllWithAnalysis();
+}
+
 }
 
 module.exports = new CandidateService();

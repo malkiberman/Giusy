@@ -1,4 +1,4 @@
-const { Candidate } = require('../models/candidate.model');
+const Candidate = require('../models/candidate.model');
 
 class CandidateRepository {
   async create(data) {

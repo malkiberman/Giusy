@@ -9,7 +9,6 @@ const CandidateSchema = new mongoose.Schema({
     enum: ['pending', 'submitted', 'analyzed'], 
     default: 'pending' 
   },
-  answers: [String], // מערך של התשובות שהומר מקול לטקסט
   analysis: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Analysis' // קישור לטבלת הניתוח שרותי תמלא

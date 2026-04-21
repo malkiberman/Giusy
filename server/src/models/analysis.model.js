@@ -6,6 +6,10 @@ const AnalysisSchema = new mongoose.Schema({
     ref: 'Candidate', 
     required: true 
   },
+  answers: {
+    type: [String],
+    default: []
+  },
   // נתונים טכניים
   technical: {
     location: { type: Number, default: 0 },
@@ -22,6 +26,10 @@ const AnalysisSchema = new mongoose.Schema({
   },
   experienceLevel: { type: Number, default: 0 },
   recommendedRole: { type: Number, default: 0 },
+  finalScore: { 
+    type: Number, 
+    default: null 
+  },
   summary: { type: String, default: "" },
   insights: [String], // מערך של תובנות
   recommendedQuestions: [String] // שאלות המשך לראיון
