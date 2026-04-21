@@ -22,21 +22,29 @@ export default function useInterview({ candidateInfo, onConversationEnd, reset }
   }
 
 async function handleSubmit(finalAnswers) {
-  // נשלוף את ה-ID שקיבלנו מהשרת ושמרנו ב-candidateInfo
-  const candidateId = candidateInfo?._id || candidateInfo?.id;
+  // בדיקה יסודית איפה המזהה מתחבא
+  const candidateId = 
+    candidateInfo?._id ||    // המבנה של מונגו
+    candidateInfo?.id ||     // מבנה מנורמל
+    candidateInfo?.data?._id; // למקרה שהאובייקט עטוף
+
+  console.log("🧐 מזהה מועמד שנמצא:", candidateId);
 
   if (!candidateId) {
+    console.error("❌ לא נמצא מזהה באובייקט:", candidateInfo);
     setSubmitError('חסר מזהה מועמד. אנא נסה להירשם מחדש.');
     return;
   }
 
   setSubmitting(true);
   try {
-    // שליחה ל-Endpoint החדש של ה-Analysis
-    const savedAnalysis = await submitInterviewAnalysis(candidateId, finalAnswers);
+    // שליחה לשרת - ודאי שאת משתמשת בשם הפונקציה הנכון מ-api.js
+    await submitInterviewAnalysis(candidateId, finalAnswers);
+    
     pushBot(DONE_MESSAGE);
-    onConversationEnd?.(savedAnalysis);
+    onConversationEnd?.({ ...candidateInfo, _id: candidateId });
   } catch (error) {
+    console.error("🔥 שגיאה בשמירת הראיון:", error);
     setSubmitError('לא הצלחנו לשמור את תשובות הראיון.');
   } finally {
     setSubmitting(false);
