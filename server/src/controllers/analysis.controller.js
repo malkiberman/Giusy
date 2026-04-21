@@ -13,13 +13,13 @@ exports.getCandidateAnalysis = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+}; // <-- כאן הייתה חסרה הסגירה!
 
-  exports.createAnalysis = async (req, res) => {
+exports.createAnalysis = async (req, res) => {
   try {
     const { candidateId, answers } = req.body;
-    // כאן אפשר להוסיף קריאה ל-AI Service של רותי בעתיד
     const aiResults = { 
-      score: 0, // זמני עד שה-AI יעבוד
+      score: 0, 
       feedback: "הראיון הושלם בהצלחה",
       answers 
     };
@@ -29,6 +29,4 @@ exports.getCandidateAnalysis = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-};
-
 };
