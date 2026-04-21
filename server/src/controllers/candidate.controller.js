@@ -12,4 +12,10 @@ exports.createCandidate = async (req, res) => {
 exports.getAllCandidates = async (req, res) => {
   const candidates = await CandidateService.getAllCandidates();
   res.json(candidates);
+  
+  
+  if (!candidates) {
+      return res.status(404).json({ message: "לא נמצאו מועמדים" });
+    }
+
 };
