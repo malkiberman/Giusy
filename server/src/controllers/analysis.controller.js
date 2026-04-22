@@ -37,30 +37,32 @@ exports.getCandidateAnalysis = async (req, res) => {
   }
 }; // <-- כאן הייתה חסרה הסגירה!
 
+// src/controllers/analysis.controller.js
 exports.createAnalysis = async (req, res) => {
   try {
     const { candidateId, answers } = req.body;
+    console.log("📥 Received analysis request for candidate:", candidateId);
 
-    if (!candidateId || !answers || !Array.isArray(answers)) {
-      return res.status(400).json({ message: "Missing candidateId or answers array" });
-    }
-
-    // חילוץ רק של טקסט התשובות אם נשלח אובייקט מורכב מהפרונט
-    const plainAnswers = answers.map(a => typeof a === 'object' ? a.answer : a);
-
-    console.log(`Starting AI Analysis for candidate: ${candidateId}`);
+    // הגבלת זמן לניתוח - אם לוקח יותר מ-15 שניות, נעצור
+    const analysisPromise = AnalysisService.analyzeAndCreateConversation(candidateId, answers);
     
-    const analysis = await AnalysisService.analyzeAndCreateConversation(
-      candidateId, 
-      plainAnswers
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("AI_TIMEOUT")), 15000)
     );
 
-    return res.status(201).json(analysis);
+    const result = await Promise.race([analysisPromise, timeoutPromise]);
+    
+    console.log("✅ Analysis completed and saved");
+    return res.status(201).json(result);
+
   } catch (error) {
-    console.error("Analysis Controller Error:", error.message);
-    return res.status(500).json({ 
-      message: "הניתוח נכשל", 
-      error: error.message 
-    });
+    console.error("❌ Analysis Error:", error.message);
+    
+    // אם ה-AI נתקע, עדיין נחזיר 201 עם הודעת "בניתוח" כדי שהפרונט ימשיך
+    if (error.message === "AI_TIMEOUT") {
+      return res.status(201).json({ status: "pending", message: "הראיון נשמר, הניתוח יושלם ברקע" });
+    }
+    
+    return res.status(500).json({ message: "שגיאה פנימית בשמירה" });
   }
 };
