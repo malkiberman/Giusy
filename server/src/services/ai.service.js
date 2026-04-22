@@ -1,6 +1,13 @@
 const axios = require('axios');
+const { log } = require('console');
 const fs = require('fs/promises');
 const path = require('path');
+
+function resolveEnvFilePath(envKey) {
+  const rawPath = process.env.PROMPT_FILE_PATH;
+  if (!rawPath) return null;
+  return path.isAbsolute(rawPath) ? rawPath : path.join(__dirname, '..', '..', rawPath);
+}
 
 async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   const googleKey = process.env.GOOGLE_API_KEY;
@@ -17,9 +24,19 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flas
     console.warn('⚠️ Fallback used for prompt');
     basePrompt = "נתח את הראיון הבא והחזר JSON בלבד.";
   }
+    //basePrompt = await fs.readFile(promptPath, 'utf8').catch(() => '');
+  // console.log('!!!!!!', basePrompt);
+  }
 
-  // 2. בניית הטקסט
-  const fullText = `${basePrompt}\n\nReturn ONLY a valid JSON object.\n\nQuestions:\n${questions.join('\n')}\n\nAnswers:\n${answers.join('\n')}`;
+  // Build the full prompt
+   let fullPrompt = basePrompt;
+  console.log('*****fullPrompt prompt :', basePrompt,'-------');
+  if (questions && questions.length) {
+    fullPrompt += '\n\nQuestions:\n' + questions.map((q, i) => `${i + 1}. ${q}`).join('\n');
+  }
+  if (answers && answers.length) {
+    fullPrompt += '\n\nAnswers:\n' + answers.map((a, i) => `${i + 1}. ${a}`).join('\n');
+  }
 
   const payload = {
     contents: [{
@@ -43,6 +60,6 @@ const resp = await axios.post(url, payload, {
     console.error('AI API Error Detail:', JSON.stringify(err.response?.data || err.message));
     throw err;
   }
-}
+
 
 module.exports = { sendPromptAndQaFromEnv };

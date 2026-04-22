@@ -18,6 +18,16 @@ class CandidateService {
   async getAllCandidates() {
     return await CandidateRepo.findAllWithAnalysis();
   }
+<<<<<<< HEAD
+=======
+
+  async getAllCandidatesWithSomeAnaysis() {
+    return await CandidateRepo.getAllCandidatesWithSomeAnaysis();
+  }
+
+  async getCandidateByIdWithAnaysis(id) {
+  return await CandidateRepo.getCandidateByIdWithAnaysis(id);
+>>>>>>> 249a41054fae7ffbb6122e29871972315add5f6d
 }
 
 module.exports = new CandidateService();
