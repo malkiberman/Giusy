@@ -69,17 +69,14 @@ export async function fetchCandidates() {
  * שליפת מועמד ספציפי כולל הניתוח שלו - קריאה מאוחדת
  */
 export async function fetchCandidateById(id) {
-  // קריאה אחת בלבד לשרת!
-  // השרת יקבל את ה-ID ויחזיר אובייקט שכולל גם פרטי מועמד וגם את ה-analysis
+  // קריאה אחת לראוט המאוחד שיצרנו בשרת
   const data = await request(`/api/candidates/${id}`);
   
-  // אנחנו מחזירים את הדאטה כפי שהיא, ה-Hook (useCandidate) כבר ידע להשתמש בזה
   return {
     ...data,
     id: data._id || data.id
   };
 }
-
 // פונקציה תומכת אחורנית למי שעדיין משתמש בשם הישן
 export const submitInterview = async (payload) => {
     // אם הקוד הישן שלכן שולח אובייקט עם candidateId, נתמוך בזה

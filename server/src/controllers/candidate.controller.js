@@ -1,5 +1,5 @@
 const CandidateService = require('../services/candidate.service');
- const AnalysisService = require('../services/analysis.service'); 
+const AnalysisService = require('../services/analysis.service'); 
 
 exports.createCandidate = async (req, res) => {
   try {
@@ -16,11 +16,11 @@ exports.getAllCandidates = async (req, res) => {
     if (!candidates || candidates.length === 0) {
       return res.status(404).json({ message: "לא נמצאו מועמדים" });
     }
-    res.json(candidates); // התגובה צריכה להיות בסוף
+    res.json(candidates);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-
+}; // ודאי שיש כאן סגירה!
 
 exports.getCandidateWithAnalysis = async (req, res) => {
   try {
@@ -30,16 +30,18 @@ exports.getCandidateWithAnalysis = async (req, res) => {
     const candidate = await CandidateService.getCandidateById(id);
     if (!candidate) return res.status(404).json({ message: "מועמד לא נמצא" });
 
-    // 2. שולפים את הניתוח שלו (מהקונטרולר/סרוויס השני בעצם)
+    // 2. שולפים את הניתוח שלו
     const analysis = await AnalysisService.getAnalysisByCandidate(id);
 
-    // 3. מחזירים אובייקט אחד מאוחד
+    // 3. מחזירים אובייקט מאוחד
+    // שימי לב: אם candidate הוא מסמך Mongoose, משתמשים ב-toObject()
+    const candidateData = candidate.toObject ? candidate.toObject() : candidate;
+
     res.json({
-      ...candidate.toObject(),
-      analysis: analysis || null // מחזיר null אם ה-AI עוד לא סיים
+      ...candidateData,
+      analysis: analysis || null
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-}
