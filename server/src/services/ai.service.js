@@ -28,8 +28,12 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flas
   };
 
   try {
-    const resp = await axios.post(url, payload);
-    
+const resp = await axios.post(url, payload, {
+  headers: {
+    'Content-Type': 'application/json',
+    'X-goog-api-key': googleKey
+  }
+});    
     if (resp.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
       return resp.data.candidates[0].content.parts[0].text;
     }
