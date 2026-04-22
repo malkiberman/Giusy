@@ -1,0 +1,417 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, var(--bg-soft) 0%, var(--bg-lighter) 100%);
+}
+
+.page > :not(header) {
+  padding: 2.5rem 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Back button */
+.back {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 2rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.back:hover {
+  color: var(--primary-light);
+  gap: 0.75rem;
+}
+
+/* Top section */
+.top {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+/* Base card */
+.card {
+  background: var(--bg);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow-base);
+  border: 1px solid var(--border);
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-2px);
+}
+
+/* decorative gradient bar */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--gradient-hero);
+}
+
+/* subtle pink glow in top-right corner */
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 60px;
+  background: radial-gradient(ellipse at top right, rgba(232, 59, 124, 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+/* Info card inside .top */
+.top .card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 0;
+  flex-wrap: wrap;
+}
+
+/* Avatar */
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg-lighter), var(--primary-light));
+  color: var(--primary);
+  font-size: 1.75rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px var(--accent-pink), 0 0 0 6px rgba(232, 59, 124, 0.15);
+}
+
+.candidateName {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.02em;
+}
+
+.position {
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.contacts {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+  font-weight: 500;
+}
+
+.priorityBadge {
+  margin-right: auto;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  align-self: flex-start;
+  letter-spacing: 0.05em;
+  background: var(--accent-soft);
+  color: var(--primary-deep);
+  border: 1px solid var(--accent-pink);
+}
+
+/* Score card */
+.scoreCard {
+  background: var(--bg);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow-base);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 180px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.scoreCard:hover {
+  box-shadow: var(--shadow-card);
+  transform: translateY(-2px);
+}
+
+/* gold top bar on score card */
+.scoreCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--gradient-yellow);
+}
+
+.scoreCard::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 80px; height: 80px;
+  background: radial-gradient(ellipse at bottom right, rgba(245, 158, 11, 0.12), transparent 70%);
+  pointer-events: none;
+}
+
+.scoreCircle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid var(--accent-pink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 0 4px rgba(232, 59, 124, 0.2);
+  background: linear-gradient(135deg, var(--accent-soft) 0%, #ffffff 100%);
+}
+
+.scoreCircle span {
+  font-size: 2.25rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--primary-deep);
+}
+
+.scoreCircle small {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.scoreLabel {
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Section title */
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 1.5rem;
+  padding: 0 0 0.75rem;
+  border-bottom: 2px solid var(--border);
+  border-right: 3px solid var(--accent-pink);
+  letter-spacing: 0.05em;
+}
+
+/* AI Summary */
+.summaryText {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  margin: 0 0 2rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-lighter);
+  border-radius: 12px;
+  border-right: 4px solid var(--primary);
+  border: 1px solid var(--border);
+}
+
+.swGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .swGrid { grid-template-columns: 1fr; }
+}
+
+.swBox {
+  background: var(--bg-soft);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
+}
+
+.swBox:hover {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-xs);
+}
+
+.swTitle {
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary);
+}
+
+.swTitle::before {
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-pink);
+}
+
+.swList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.swItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+  background: var(--accent-yellow);
+}
+
+/* Parameters table */
+.paramTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.paramRow {
+  border-bottom: 1px solid #f3f0ff;
+  transition: background 0.12s;
+}
+.paramRow:hover { background: #faf8ff; }
+.paramRow:last-child { border-bottom: none; }
+
+.paramLabel {
+  padding: 0.7rem 0.5rem;
+  font-size: 0.87rem;
+  color: #374151;
+  font-weight: 600;
+  width: 60%;
+}
+
+.paramBadge {
+  display: inline-block;
+  padding: 0.22rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+}
+
+/* ── Accordion ── */
+.accordion {
+  display: flex;
+  flex-direction: column;
+}
+
+.accordionItem {
+  border-bottom: 1px solid #f3f0ff;
+}
+.accordionItem:last-child { border-bottom: none; }
+
+.accordionHeader {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.95rem 0.1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #1f1535;
+  font-weight: 600;
+  text-align: right;
+  gap: 1rem;
+  transition: color 0.15s;
+}
+.accordionHeader:hover { color: #7c3aed; }
+
+.accordionHeaderOpen {
+  color: #7c3aed;
+}
+
+.qIndex {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+  letter-spacing: 0.2px;
+}
+
+.chevron {
+  font-size: 1rem;
+  color: #a78bfa;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.accordionBody {
+  padding: 0 0.1rem 1rem 0.1rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+  line-height: 1.65;
+  /* gold right accent on open answer (RTL) */
+  border-right: 3px solid rgba(212, 160, 23, 0.5);
+  padding-right: 1rem;
+  margin-right: 0.1rem;
+  background: linear-gradient(to left, rgba(212, 160, 23, 0.04), transparent 50%);
+  border-radius: 6px 0 0 6px;
+}

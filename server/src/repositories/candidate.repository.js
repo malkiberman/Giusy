@@ -16,6 +16,10 @@ class CandidateRepository {
   async update(id, data) {
     return await Candidate.findByIdAndUpdate(id, data, { new: true });
   }
+
+    async findAll() {
+    return await Candidate.find();
+    }
 }
 
 module.exports = new CandidateRepository();

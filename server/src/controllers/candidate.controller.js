@@ -10,6 +10,13 @@ exports.createCandidate = async (req, res) => {
 };
 
 exports.getAllCandidates = async (req, res) => {
-  const candidates = await CandidateService.getAllCandidates();
-  res.json(candidates);
+  try {
+    const candidates = await CandidateService.getAllCandidates();
+    if (!candidates || candidates.length === 0) {
+      return res.status(404).json({ message: "לא נמצאו מועמדים" });
+    }
+    res.json(candidates); // התגובה צריכה להיות בסוף
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
