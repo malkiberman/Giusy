@@ -23,14 +23,23 @@ app.get('/health', (req, res) => res.status(200).send('OK'));
 
 // התיקון הקריטי עבור ה-Dashboard והניתובים של React:
 // כל מה שלא תפסנו עד עכשיו - יחזיר את ה-index.html של ה-React
-app.get('/:path((.*))', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// 2. התיקון לשגיאת ה-PathError:
+// במקום app.get('/:path((.*))'), השתמשי בזה:
+app.get('*', (req, res) => {
+  // אנחנו בודקים אם הבקשה היא לא ל-API (ליתר ביטחון)
+  if (!req.url.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  }
 });
 
 const PORT = process.env.PORT || 3000;
 
+// 3. חשוב מאוד: ודאי שהפורט מוגדר נכון
 connectDB().then(() => {
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => { // הוספת '0.0.0.0' עוזרת ל-Render למצוא את הפורט
     console.log(`Server running on port ${PORT}`);
   });
 });
+
