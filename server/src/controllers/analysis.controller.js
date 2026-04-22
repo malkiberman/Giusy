@@ -40,15 +40,27 @@ exports.getCandidateAnalysis = async (req, res) => {
 exports.createAnalysis = async (req, res) => {
   try {
     const { candidateId, answers } = req.body;
-    const aiResults = { 
-      score: 0, 
-      feedback: "הראיון הושלם בהצלחה",
-      answers 
-    };
+
+    if (!candidateId || !answers || !Array.isArray(answers)) {
+      return res.status(400).json({ message: "Missing candidateId or answers array" });
+    }
+
+    // חילוץ רק של טקסט התשובות אם נשלח אובייקט מורכב מהפרונט
+    const plainAnswers = answers.map(a => typeof a === 'object' ? a.answer : a);
+
+    console.log(`Starting AI Analysis for candidate: ${candidateId}`);
     
-    const analysis = await AnalysisService.createAnalysis(candidateId, aiResults);
-    res.status(201).json(analysis);
+    const analysis = await AnalysisService.analyzeAndCreateConversation(
+      candidateId, 
+      plainAnswers
+    );
+
+    return res.status(201).json(analysis);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Analysis Controller Error:", error.message);
+    return res.status(500).json({ 
+      message: "הניתוח נכשל", 
+      error: error.message 
+    });
   }
 };

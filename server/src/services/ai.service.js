@@ -33,19 +33,20 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   }
 
   const payload = {
-    contents: [{ parts: [{ text: fullPrompt }] }]
+    contents: [{ parts: [{ text: fullPrompt }] }],
+    generationConfig: {
+      responseMimeType: "application/json"
+    }
   };
 
-  try {
+ try {
     const resp = await axios.post(url, payload, { timeout: 20000 });
+    // חילוץ הטקסט מהמבנה של Gemini
     const text = resp?.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (typeof text === 'string') return text;
-    return resp.data;
+    return text;
   } catch (err) {
-    const msg = err?.response?.data || err?.message || String(err);
-    const e = new Error('Generative API request failed: ' + (typeof msg === 'string' ? msg : JSON.stringify(msg)));
-    e.details = msg;
-    throw e;
+    console.error('AI API Error:', err.response?.data || err.message);
+    throw err;
   }
 }
 
