@@ -12,11 +12,11 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   let basePrompt = '';
   try {
     // process.cwd() זה שורש הפרויקט + תיקיית data + שם הקובץ prompt
-    const promptPath = path.join(process.cwd(), 'data', 'prompt'); 
+    const promptPath = path.join(process.cwd(), 'prompts', 'prompt'); 
     basePrompt = await fs.readFile(promptPath, 'utf8');
-    console.log('✅ Prompt file loaded from /data/prompt');
+    console.log('✅ Prompt file loaded from /prompts/prompt');
   } catch (err) {
-    console.warn('⚠️ Could not find prompt in /data/prompt, using fallback');
+    console.warn('⚠️ Could not find prompt in /prompts/prompt, using fallback');
     basePrompt = "Analyze the interview and return a JSON object with scores and feedback.";
   }
 
