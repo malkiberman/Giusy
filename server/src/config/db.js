@@ -1,13 +1,23 @@
-const mongoose = require('mongoose');
+// server.js - גרסה נקייה לשרת נפרד
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const connectDB = require('./src/config/db');
+const candidateRoutes = require('./src/routes/candidate.routes');
+const analysisRoutes = require('./src/routes/analysis.routes');
 
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-    process.exit(1); // עוצר את השרת אם אין חיבור
-  }
-};
+const app = express();
+app.use(cors()); // מאפשר לכל מקור לגשת (או הגדירי ספציפית את הפרונט)
+app.use(express.json());
 
-module.exports = connectDB;
+app.use('/api/candidates', candidateRoutes);
+app.use('/api/analysis', analysisRoutes);
+
+app.get('/health', (req, res) => res.status(200).send('OK'));
+
+const PORT = process.env.PORT || 3000;
+connectDB().then(() => {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`API Server running on port ${PORT}`);
+  });
+});
