@@ -20,21 +20,20 @@ exports.getAllCandidates = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}; // ודאי שיש כאן סגירה!
+}; // <--- כאן הייתה חסרה הסגירה שגרמה לקריסה!
 
 exports.getCandidateWithAnalysis = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // 1. שולפים את המועמד
+    // 1. שליפת מועמד
     const candidate = await CandidateService.getCandidateById(id);
     if (!candidate) return res.status(404).json({ message: "מועמד לא נמצא" });
 
-    // 2. שולפים את הניתוח שלו
+    // 2. שליפת ניתוח
     const analysis = await AnalysisService.getAnalysisByCandidate(id);
 
-    // 3. מחזירים אובייקט מאוחד
-    // שימי לב: אם candidate הוא מסמך Mongoose, משתמשים ב-toObject()
+    // 3. איחוד נתונים
     const candidateData = candidate.toObject ? candidate.toObject() : candidate;
 
     res.json({
