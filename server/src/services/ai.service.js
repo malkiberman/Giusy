@@ -6,38 +6,39 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   const googleKey = process.env.GOOGLE_API_KEY;
   if (!googleKey) throw new Error('Missing GOOGLE_API_KEY');
 
-  // תיקון ה-URL (הוספנו models/ בשביל v1)
-  const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${googleKey}`;
+  // שינוי ל-v1beta - הגרסה הזו תומכת ב-1.5 flash בצורה הכי יציבה
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${googleKey}`;
 
-  // 1. נתיב מדויק לפי ה-find שלך: server/src/prompts/prompt
+  // 1. הנתיב שהוכחנו שעובד מה-Log שלך
   let basePrompt = '';
   try {
-    // __dirname נמצא בתוך server/src/services
-    // לכן נלך צעד אחד אחורה ל-src ואז ל-prompts
     const promptPath = path.join(__dirname, '..', 'prompts', 'prompt');
-    
     basePrompt = await fs.readFile(promptPath, 'utf8');
-    console.log('✅ Success: Prompt loaded from:', promptPath);
+    console.log('✅ Prompt loaded successfully from verified path');
   } catch (err) {
-    console.warn('⚠️ Could not find prompt at specified path, using hardcoded fallback');
-    basePrompt = "אתה עוזר גיוס. נתח את הראיון והחזר JSON עם scores ו-feedback.";
+    console.warn('⚠️ Fallback used for prompt');
+    basePrompt = "נתח את הראיון הבא והחזר JSON בלבד.";
   }
 
-  // 2. בניית הטקסט (הוראה ל-JSON בגוף הטקסט לעקיפת שגיאת 400)
-  const fullText = `${basePrompt}\n\nReturn ONLY a valid JSON object. No markdown.\n\nQuestions:\n${questions.join('\n')}\n\nAnswers:\n${answers.join('\n')}`;
+  // 2. בניית הטקסט
+  const fullText = `${basePrompt}\n\nReturn ONLY a valid JSON object.\n\nQuestions:\n${questions.join('\n')}\n\nAnswers:\n${answers.join('\n')}`;
 
   const payload = {
-    contents: [{ parts: [{ text: fullText }] }]
+    contents: [{
+      parts: [{ text: fullText }]
+    }]
   };
 
   try {
     const resp = await axios.post(url, payload);
+    
     if (resp.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
       return resp.data.candidates[0].content.parts[0].text;
     }
     throw new Error('Invalid response structure from AI');
   } catch (err) {
-    console.error('AI API Error:', err.response?.data || err.message);
+    // הדפסת שגיאה מפורטת למקרה של תקלה נוספת
+    console.error('AI API Error Detail:', JSON.stringify(err.response?.data || err.message));
     throw err;
   }
 }
