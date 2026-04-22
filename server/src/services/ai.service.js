@@ -7,8 +7,7 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   if (!googleKey) throw new Error('Missing GOOGLE_API_KEY');
 
   // שינוי ל-v1beta - הגרסה הזו תומכת ב-1.5 flash בצורה הכי יציבה
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${googleKey}`;
-
+const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${googleKey}`;
   // 1. הנתיב שהוכחנו שעובד מה-Log שלך
   let basePrompt = '';
   try {
