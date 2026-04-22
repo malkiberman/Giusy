@@ -22,30 +22,40 @@ export default function useInterview({ candidateInfo, onConversationEnd, reset }
   }
 
 async function handleSubmit(finalAnswers) {
-  // בדיקה יסודית איפה המזהה מתחבא
+  // 1. חילוץ ה-ID של המועמד
   const candidateId = 
-    candidateInfo?._id ||    // המבנה של מונגו
-    candidateInfo?.id ||     // מבנה מנורמל
-    candidateInfo?.data?._id; // למקרה שהאובייקט עטוף
-
-  console.log("🧐 מזהה מועמד שנמצא:", candidateId);
+    candidateInfo?._id ||    
+    candidateInfo?.id ||     
+    candidateInfo?.data?._id;
 
   if (!candidateId) {
-    console.error("❌ לא נמצא מזהה באובייקט:", candidateInfo);
-    setSubmitError('חסר מזהה מועמד. אנא נסה להירשם מחדש.');
+    setSubmitError('לא נמצא מזהה מועמד. אנא נסה להירשם מחדש.');
     return;
   }
 
   setSubmitting(true);
   try {
-    // שליחה לשרת - ודאי שאת משתמשת בשם הפונקציה הנכון מ-api.js
-    await submitInterviewAnalysis(candidateId, finalAnswers);
+    // --- התיקון הקריטי כאן ---
+    // הופכים את מערך האובייקטים למערך של מחרוזות (Strings) בלבד
+    // זה מה שה-Backend וה-Schema של מונגו מצפים לקבל
+    const plainAnswersForServer = finalAnswers.map(item => item.answer);
+
+    console.log("📤 שולח תשובה מנוקה לשרת:", plainAnswersForServer);
+
+    // שליחה לשרת עם המערך המנוקה
+    const result = await submitInterviewAnalysis(candidateId, plainAnswersForServer);
     
+    // אם הגענו לכאן, השרת החזיר 201 והכל נשמר
     pushBot(DONE_MESSAGE);
-    onConversationEnd?.({ ...candidateInfo, _id: candidateId });
+    
+    // מעביר את התוצאה לדף ה-Completion
+    onConversationEnd?.({ ...candidateInfo, _id: candidateId, analysis: result });
+    setDone(true);
+
   } catch (error) {
     console.error("🔥 שגיאה בשמירת הראיון:", error);
-    setSubmitError('לא הצלחנו לשמור את תשובות הראיון.');
+    // מציג הודעה למשתמש
+    setSubmitError(error.message || 'לא הצלחנו לשמור את תשובות הראיון.');
   } finally {
     setSubmitting(false);
   }
