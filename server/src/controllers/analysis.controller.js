@@ -22,5 +22,16 @@ exports.createAnalysis = async (req, res) => {
 };
 
 exports.getCandidateAnalysis = async (req, res) => {
-    // ... הקוד הקיים שלך לשליפת ניתוח ...
+  try {
+    const { candidateId } = req.params;
+    const analysis = await AnalysisService.getAnalysisByCandidate(candidateId);
+    
+    if (!analysis) {
+      return res.status(404).json({ message: "לא נמצא ניתוח למועמד זה" });
+    }
+    
+    res.json(analysis);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
