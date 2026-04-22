@@ -6,27 +6,29 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   const googleKey = process.env.GOOGLE_API_KEY;
   if (!googleKey) throw new Error('Missing GOOGLE_API_KEY');
 
-  // תיקון ה-URL: שימוש ב-gemini-1.5-flash-latest
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleKey}`;
+  // שימוש בשם המודל המדויק והנקי ביותר עבור v1beta
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${googleKey}`;
 
   let basePrompt = '';
   try {
+    // תיקון נתיב: אנחנו בתוך src/services, הקובץ נמצא ב-src/prompts/prompt
     const promptPath = path.join(__dirname, '..', 'prompts', 'prompt');
     basePrompt = await fs.readFile(promptPath, 'utf8');
     console.log('✅ Prompt loaded successfully');
   } catch (err) {
-    console.warn('⚠️ Fallback used for prompt');
-    basePrompt = "Analyze the interview. Return ONLY a valid JSON object with scores, summary, and insights.";
+    console.warn('⚠️ Fallback used - could not find prompt file at:', path.join(__dirname, '..', 'prompts', 'prompt'));
+    basePrompt = "Analyze the interview performance. Return ONLY a valid JSON object.";
   }
 
-  // בניית הטקסט המלא
-  let fullText = basePrompt;
-  if (questions.length) {
-    fullText += '\n\nQuestions:\n' + questions.join('\n');
-  }
-  if (answers.length) {
-    fullText += '\n\nAnswers:\n' + answers.join('\n');
-  }
+  // בניית הטקסט עבור ה-AI
+  const fullText = `
+${basePrompt}
+
+Interview Data:
+${questions.map((q, i) => `Question ${i + 1}: ${q}\nAnswer ${i + 1}: ${answers[i] || 'No answer'}`).join('\n\n')}
+
+IMPORTANT: Return ONLY valid JSON.
+`;
 
   const payload = {
     contents: [{
@@ -40,13 +42,17 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
     });
 
     if (!resp.data.candidates || !resp.data.candidates[0]) {
-      throw new Error('No response from Gemini API');
+      throw new Error('Empty response from Gemini');
     }
 
     return resp.data.candidates[0].content.parts[0].text;
   } catch (error) {
-    // הדפסת השגיאה המפורטת כדי שנוכל לראות אם יש בעיה אחרת
-    console.error('❌ AI API Error Detail:', error.response?.data || error.message);
+    // הדפסה מפורטת ללוג של Render במקרה של כישלון
+    if (error.response) {
+      console.error('❌ AI API Error Detail:', JSON.stringify(error.response.data, null, 2));
+    } else {
+      console.error('❌ AI API Error:', error.message);
+    }
     throw new Error('AI processing failed');
   }
 }
