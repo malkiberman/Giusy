@@ -23,7 +23,7 @@ app.get('/health', (req, res) => res.status(200).send('OK'));
 
 // התיקון הקריטי עבור ה-Dashboard והניתובים של React:
 // כל מה שלא תפסנו עד עכשיו - יחזיר את ה-index.html של ה-React
-app.get('*', (req, res) => {
+app.get('/:path((.*))', (req, res) => {
   res.sendFile(path.join(__dirname, '../client/dist/index.html'));
 });
 
