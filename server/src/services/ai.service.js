@@ -6,8 +6,8 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   const googleKey = process.env.GOOGLE_API_KEY;
   if (!googleKey) throw new Error('Missing GOOGLE_API_KEY');
 
-  // שימוש בנתיב v1beta היציב
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${googleKey}`;
+  // תיקון ה-URL: שימוש ב-gemini-1.5-flash-latest
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleKey}`;
 
   let basePrompt = '';
   try {
@@ -15,11 +15,11 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
     basePrompt = await fs.readFile(promptPath, 'utf8');
     console.log('✅ Prompt loaded successfully');
   } catch (err) {
-    console.warn('⚠️ Fallback used for prompt (Check if /prompts/prompt file exists)');
-    basePrompt = "נתח את הראיון הבא והחזר JSON בלבד עם scores, summary ו-insights.";
+    console.warn('⚠️ Fallback used for prompt');
+    basePrompt = "Analyze the interview. Return ONLY a valid JSON object with scores, summary, and insights.";
   }
 
-  // בניית הטקסט המלא ל-AI
+  // בניית הטקסט המלא
   let fullText = basePrompt;
   if (questions.length) {
     fullText += '\n\nQuestions:\n' + questions.join('\n');
@@ -35,11 +35,8 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   };
 
   try {
-    // ה-await הזה חייב להיות בתוך הבלוק של הפונקציה שהוגדרה כ-async למעלה
     const resp = await axios.post(url, payload, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers: { 'Content-Type': 'application/json' }
     });
 
     if (!resp.data.candidates || !resp.data.candidates[0]) {
@@ -48,8 +45,9 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
 
     return resp.data.candidates[0].content.parts[0].text;
   } catch (error) {
-    console.error('❌ AI API Error:', error.response?.data || error.message);
-    throw new Error('AI processing failed: ' + (error.response?.data?.error?.message || error.message));
+    // הדפסת השגיאה המפורטת כדי שנוכל לראות אם יש בעיה אחרת
+    console.error('❌ AI API Error Detail:', error.response?.data || error.message);
+    throw new Error('AI processing failed');
   }
 }
 
