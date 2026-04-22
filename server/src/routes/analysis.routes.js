@@ -6,4 +6,6 @@ const analysisController = require('../controllers/analysis.controller');
 router.get('/:candidateId', analysisController.getCandidateAnalysis);
 router.post('/', analysisController.createCandidateAnalysis);
 
+router.post('/', analysisController.createAnalysis);
+
 module.exports = router;

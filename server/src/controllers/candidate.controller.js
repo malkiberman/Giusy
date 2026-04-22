@@ -1,4 +1,5 @@
 const CandidateService = require('../services/candidate.service');
+const AnalysisService = require('../services/analysis.service'); 
 
 exports.createCandidate = async (req, res) => {
   try {

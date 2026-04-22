@@ -1,4 +1,3 @@
-require('dotenv').config();
 const axios = require('axios');
 const { log } = require('console');
 const fs = require('fs/promises');
@@ -12,12 +11,10 @@ function resolveEnvFilePath(envKey) {
 
 async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   const googleKey = process.env.GOOGLE_API_KEY;
-  if (!googleKey) throw new Error('Missing GOOGLE_API_KEY in environment');
+  if (!googleKey) throw new Error('Missing GOOGLE_API_KEY');
 
-  const model = process.env.GENAI_MODEL || 'gemma-3-4b-it';
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${googleKey}`;
-
-  // Read prompt file if specified
+  // שינוי ל-v1beta - הגרסה הזו תומכת ב-1.5 flash בצורה הכי יציבה
+const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${googleKey}`;  // 1. הנתיב שהוכחנו שעובד מה-Log שלך
   let basePrompt = '';
   const promptPath = resolveEnvFilePath('PROMPT_FILE_PATH');
   if (promptPath) {
@@ -44,19 +41,26 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   }
 
   const payload = {
-    contents: [{ parts: [{ text: fullPrompt }] }]
+    contents: [{
+      parts: [{ text: fullText }]
+    }]
   };
 
   try {
-    const resp = await axios.post(url, payload, { timeout: 20000 });
-    const text = resp?.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (typeof text === 'string') return text;
-    return resp.data;
+const resp = await axios.post(url, payload, {
+  headers: {
+    'Content-Type': 'application/json',
+    'X-goog-api-key': googleKey
+  }
+});    
+    if (resp.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      return resp.data.candidates[0].content.parts[0].text;
+    }
+    throw new Error('Invalid response structure from AI');
   } catch (err) {
-    const msg = err?.response?.data || err?.message || String(err);
-    const e = new Error('Generative API request failed: ' + (typeof msg === 'string' ? msg : JSON.stringify(msg)));
-    e.details = msg;
-    throw e;
+    // הדפסת שגיאה מפורטת למקרה של תקלה נוספת
+    console.error('AI API Error Detail:', JSON.stringify(err.response?.data || err.message));
+    throw err;
   }
 }
 
