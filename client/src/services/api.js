@@ -65,16 +65,19 @@ export async function fetchCandidates() {
 /**
  * שליפת מועמד ספציפי כולל הניתוח שלו
  */
+/**
+ * שליפת מועמד ספציפי כולל הניתוח שלו - קריאה מאוחדת
+ */
 export async function fetchCandidateById(id) {
-  const candidate = await request(`/api/candidates/${id}`);
+  // קריאה אחת בלבד לשרת!
+  // השרת יקבל את ה-ID ויחזיר אובייקט שכולל גם פרטי מועמד וגם את ה-analysis
+  const data = await request(`/api/candidates/${id}`);
   
-  try {
-    const analysis = await request(`/api/analysis/${id}`);
-    return normalizeCandidate({ ...candidate, analysis });
-  } catch {
-    // אם אין עדיין ניתוח, מחזירים רק את המועמד
-    return normalizeCandidate(candidate);
-  }
+  // אנחנו מחזירים את הדאטה כפי שהיא, ה-Hook (useCandidate) כבר ידע להשתמש בזה
+  return {
+    ...data,
+    id: data._id || data.id
+  };
 }
 
 // פונקציה תומכת אחורנית למי שעדיין משתמש בשם הישן
