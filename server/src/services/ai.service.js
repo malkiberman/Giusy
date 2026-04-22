@@ -1,33 +1,48 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const connectDB = require('./src/config/db'); // ודאי שהקובץ קיים בנתיב הזה בתוך תיקיית server
-const candidateRoutes = require('./src/routes/candidate.routes');
-const analysisRoutes = require('./src/routes/analysis.routes');
+const axios = require('axios');
+const fs = require('fs/promises');
+const path = require('path');
 
-const app = express();
+async function sendPromptAndQaFromEnv(questions = [], answers = []) {
+  const googleKey = process.env.GOOGLE_API_KEY;
+  if (!googleKey) throw new Error('Missing GOOGLE_API_KEY');
 
-// Middleware
-app.use(cors()); // חשוב: מאפשר לקליינט הנפרד שלך לתקשר עם השרת
-app.use(express.json());
+  // שינוי ל-v1beta - הגרסה הזו תומכת ב-1.5 flash בצורה הכי יציבה
+const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${googleKey}`;  // 1. הנתיב שהוכחנו שעובד מה-Log שלך
+  let basePrompt = '';
+  try {
+    const promptPath = path.join(__dirname, '..', 'prompts', 'prompt');
+    basePrompt = await fs.readFile(promptPath, 'utf8');
+    console.log('✅ Prompt loaded successfully from verified path');
+  } catch (err) {
+    console.warn('⚠️ Fallback used for prompt');
+    basePrompt = "נתח את הראיון הבא והחזר JSON בלבד.";
+  }
 
-// API Routes
-app.use('/api/candidates', candidateRoutes);
-app.use('/api/analysis', analysisRoutes);
+  // 2. בניית הטקסט
+  const fullText = `${basePrompt}\n\nReturn ONLY a valid JSON object.\n\nQuestions:\n${questions.join('\n')}\n\nAnswers:\n${answers.join('\n')}`;
 
-// Health Check עבור Render
-app.get('/health', (req, res) => res.status(200).send('OK'));
+  const payload = {
+    contents: [{
+      parts: [{ text: fullText }]
+    }]
+  };
 
-const PORT = process.env.PORT || 3000;
+  try {
+const resp = await axios.post(url, payload, {
+  headers: {
+    'Content-Type': 'application/json',
+    'X-goog-api-key': googleKey
+  }
+});    
+    if (resp.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      return resp.data.candidates[0].content.parts[0].text;
+    }
+    throw new Error('Invalid response structure from AI');
+  } catch (err) {
+    // הדפסת שגיאה מפורטת למקרה של תקלה נוספת
+    console.error('AI API Error Detail:', JSON.stringify(err.response?.data || err.message));
+    throw err;
+  }
+}
 
-// חיבור למסד הנתונים והפעלת השרת
-connectDB()
-  .then(() => {
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`✅ API Server running on port ${PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.error("❌ Failed to start server:", err.message);
-    process.exit(1);
-  });
+module.exports = { sendPromptAndQaFromEnv };
