@@ -6,29 +6,38 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
   const googleKey = process.env.GOOGLE_API_KEY;
   if (!googleKey) throw new Error('Missing GOOGLE_API_KEY');
 
-  // שימוש בשם המודל המדויק והנקי ביותר עבור v1beta
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${googleKey}`;
+  // ניסיון להשתמש ב-gemini-pro אם ה-flash מחזיר 404 ב-v1beta
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${googleKey}`;
 
   let basePrompt = '';
-  try {
-    // תיקון נתיב: אנחנו בתוך src/services, הקובץ נמצא ב-src/prompts/prompt
-    const promptPath = path.join(__dirname, '..', 'prompts', 'prompt');
-    basePrompt = await fs.readFile(promptPath, 'utf8');
-    console.log('✅ Prompt loaded successfully');
-  } catch (err) {
-    console.warn('⚠️ Fallback used - could not find prompt file at:', path.join(__dirname, '..', 'prompts', 'prompt'));
-    basePrompt = "Analyze the interview performance. Return ONLY a valid JSON object.";
+  
+  // ניסיון לזהות את הנתיב הנכון ב-Render לפי הודעת השגיאה שלך
+  const possiblePaths = [
+    path.join(__dirname, '..', 'prompts', 'prompt'), // נתיב פיתוח
+    '/opt/render/project/src/server/src/prompts/prompt' // נתיב ייצור ב-Render
+  ];
+
+  for (const p of possiblePaths) {
+    try {
+      basePrompt = await fs.readFile(p, 'utf8');
+      console.log(`✅ Prompt loaded successfully from: ${p}`);
+      break; 
+    } catch (err) {
+      continue;
+    }
   }
 
-  // בניית הטקסט עבור ה-AI
-  const fullText = `
-${basePrompt}
+  if (!basePrompt) {
+    console.warn('⚠️ No prompt file found, using hardcoded instructions');
+    basePrompt = "נתח את הראיון הבא. החזר אובייקט JSON עם השדות: scores (אובייקט), summary (מחרוזת), insights (מערך).";
+  }
 
-Interview Data:
-${questions.map((q, i) => `Question ${i + 1}: ${q}\nAnswer ${i + 1}: ${answers[i] || 'No answer'}`).join('\n\n')}
+  // בניית הטקסט עבור ה-AI - פורמט ברור יותר
+  const interviewData = questions.map((q, i) => {
+    return `Question ${i + 1}: ${q}\nAnswer ${i + 1}: ${answers[i] || 'No answer provided'}`;
+  }).join('\n\n');
 
-IMPORTANT: Return ONLY valid JSON.
-`;
+  const fullText = `${basePrompt}\n\nInterview Data to Analyze:\n${interviewData}\n\nStrictly return valid JSON only.`;
 
   const payload = {
     contents: [{
@@ -41,17 +50,17 @@ IMPORTANT: Return ONLY valid JSON.
       headers: { 'Content-Type': 'application/json' }
     });
 
-    if (!resp.data.candidates || !resp.data.candidates[0]) {
-      throw new Error('Empty response from Gemini');
+    if (!resp.data.candidates || !resp.data.candidates[0] || !resp.data.candidates[0].content) {
+      console.error('❌ Unexpected API Response:', JSON.stringify(resp.data));
+      throw new Error('Invalid response from Gemini API');
     }
 
     return resp.data.candidates[0].content.parts[0].text;
   } catch (error) {
-    // הדפסה מפורטת ללוג של Render במקרה של כישלון
     if (error.response) {
       console.error('❌ AI API Error Detail:', JSON.stringify(error.response.data, null, 2));
     } else {
-      console.error('❌ AI API Error:', error.message);
+      console.error('❌ AI API Error Message:', error.message);
     }
     throw new Error('AI processing failed');
   }
