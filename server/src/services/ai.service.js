@@ -22,7 +22,6 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
     basePrompt = 'Analyze the following interview:';
   }
 
-  // בניית הפרומפט המלא
   let fullPrompt = basePrompt.trim();
   fullPrompt += '\n\nQuestions:\n' + questions.join('\n');
   fullPrompt += '\n\nAnswers:\n' + answers.join('\n');
