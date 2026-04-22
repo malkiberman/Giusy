@@ -18,7 +18,15 @@ class CandidateService {
   }
 
   async getAllCandidates() {
-  return await CandidateRepo.findAllWithAnalysis();
+    return await CandidateRepo.findAllWithAnalysis();
+  }
+
+  async getAllCandidatesWithSomeAnaysis() {
+    return await CandidateRepo.getAllCandidatesWithSomeAnaysis();
+  }
+
+  async getCandidateByIdWithAnaysis(id) {
+  return await CandidateRepo.getCandidateByIdWithAnaysis(id);
 }
 
 }
