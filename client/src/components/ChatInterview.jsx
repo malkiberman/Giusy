@@ -45,20 +45,24 @@ const [allRecordings, setAllRecordings] = useState([]); // לשמור את כל 
     onConversationEnd, 
     reset: resetSpeech // מעבירים את הפונקציה עם השם החדש
   });
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, interim]);
-
-  useEffect(() => {
-    if (isRecording) {
-      setInput(`${transcript}${interim ? ` ${interim}` : ''}`.trim());
-    }
-  }, [transcript, interim, isRecording]);
+ // 1. גלילה אוטומטית למטה כשיש הודעה חדשה או כשהתמלול מתעדכן
 useEffect(() => {
-    if (audioBlob) {
-      setAllRecordings(prev => [...prev, audioBlob]);
-    }
-  }, [audioBlob]);
+  bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+}, [messages, speechInterim]); // שימוש ב-speechInterim
+
+// 2. עדכון שדה הקלט בזמן אמת בזמן שהמועמד מדבר
+useEffect(() => {
+  if (isSpeechRec) { // ודאי שזה השם שנתת ל-isRecording מה-Speech
+    setInput(`${speechTranscript}${speechInterim ? ` ${speechInterim}` : ''}`.trim());
+  }
+}, [speechTranscript, speechInterim, isSpeechRec, setInput]);
+
+// 3. שמירת הקלטת האודיו (הקובץ) ברגע שהיא מוכנה
+useEffect(() => {
+  if (audioBlob) {
+    setAllRecordings(prev => [...prev, audioBlob]);
+  }
+}, [audioBlob]);
 const handleFinalSubmit = async () => {
   let finalAudioUrl = null;
 
