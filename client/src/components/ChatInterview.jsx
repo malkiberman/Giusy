@@ -145,10 +145,10 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
         <div ref={bottomRef} />
       </div>
 
-      {!supported ? (
+      {!isSpeechSupported ? (
         <div style={styles.warning}>זיהוי דיבור אינו נתמך בדפדפן זה. מומלץ Chrome או Edge.</div>
       ) : null}
-      {recError ? <div style={styles.warning}>{recError}</div> : null}
+      {speechError ? <div style={styles.warning}>{speechError}</div> : null}
       {submitError ? <div style={styles.error}>{submitError}</div> : null}
 
       {/* אזור הקלט או כפתור סיום */}
