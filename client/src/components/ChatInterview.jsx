@@ -3,7 +3,7 @@ import { interviewQuestions } from '../config/interviewQuestions';
 import { useSpeechRecorder } from '../hooks/useSpeechRecorder';
 import { useAudioRecorder } from '../hooks/useAudioRecorder'; // להוסיף
 import useInterview from '../hooks/useInterview';
-import { uploadAudioFile } from '../api'; // להוסיף
+import { uploadAudioFile } from '../services/api'; // להוסיף
 
 export default function ChatInterview({ onConversationEnd, candidateInfo }) {
   const bottomRef = useRef(null);
