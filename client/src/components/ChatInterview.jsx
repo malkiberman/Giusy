@@ -7,27 +7,25 @@ import { uploadAudioFile } from '../services/api'; // להוסיף
 
 export default function ChatInterview({ onConversationEnd, candidateInfo }) {
   const bottomRef = useRef(null);
-const [allRecordings, setAllRecordings] = useState([]); // לשמור את כל ה-Blobs
-  const { 
-    isRecording: isAudioRec, 
-    audioBlob, 
-    startRecording, 
-    stopRecording 
+  const [allRecordings, setAllRecordings] = useState([]); // לשמור את כל ה-Blobs
+  const {
+    isRecording: isAudioRec,
+    audioBlob,
+    startRecording,
+    stopRecording
   } = useAudioRecorder();
 
-  // 2. הוק תמלול (Speech to Text)
-  // שים לב לשימוש ב- : כדי לשנות את שמות המשתנים ולמנוע כפילות
+  // תמלול דיבור (לטקסט)
   const {
     isRecording: isSpeechRec,
-    transcript: speechTranscript, // שינוי שם כדי שלא יתנגש
-    interim: speechInterim,       // שינוי שם
-    supported: isSpeechSupported, // שינוי שם
-    error: speechError,           // שינוי שם
+    transcript: speechTranscript,
+    interim: speechInterim,
+    supported: isSpeechSupported,
+    error: speechError,
     start: startSpeech,
     stop: stopSpeech,
-    reset: resetSpeech,           // שינוי שם
-  } = useSpeechRecorder('he-IL');
-
+    reset: resetSpeech,
+  } = useSpeechRecorder('he-IL')
   // 3. הוק ניהול הראיון
   const {
     messages,
@@ -40,63 +38,64 @@ const [allRecordings, setAllRecordings] = useState([]); // לשמור את כל 
     submitError,
     handleSend,
     handleSubmit,
-  } = useInterview({ 
-    candidateInfo, 
-    onConversationEnd, 
+  } = useInterview({
+    candidateInfo,
+    onConversationEnd,
     reset: resetSpeech // מעבירים את הפונקציה עם השם החדש
   });
- // 1. גלילה אוטומטית למטה כשיש הודעה חדשה או כשהתמלול מתעדכן
-useEffect(() => {
-  bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-}, [messages, speechInterim]); // שימוש ב-speechInterim
+  // גלילה למטה - משתמש ב-speechInterim
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, speechInterim]);
 
-// 2. עדכון שדה הקלט בזמן אמת בזמן שהמועמד מדבר
-useEffect(() => {
-  if (isSpeechRec) { // ודאי שזה השם שנתת ל-isRecording מה-Speech
-    setInput(`${speechTranscript}${speechInterim ? ` ${speechInterim}` : ''}`.trim());
-  }
-}, [speechTranscript, speechInterim, isSpeechRec, setInput]);
-
-// 3. שמירת הקלטת האודיו (הקובץ) ברגע שהיא מוכנה
-useEffect(() => {
-  if (audioBlob) {
-    setAllRecordings(prev => [...prev, audioBlob]);
-  }
-}, [audioBlob]);
-const handleFinalSubmit = async () => {
-  let finalAudioUrl = null;
-
-  try {
-    if (allRecordings.length > 0) {
-      // מוצאים את ההקלטה הכי ארוכה
-      const longestBlob = allRecordings.reduce((prev, current) => 
-        (prev.size > current.size) ? prev : current
-      );
-      
-      // מעלים ל-S3 - וודאי ששלחת את המייל ב-candidateInfo
-      const email = candidateInfo?.email || 'candidate';
-      finalAudioUrl = await uploadAudioFile(longestBlob, email);
+  // עדכון הטקסט בתיבה - משתמש ב-isSpeechRec, speechTranscript ו-speechInterim
+  useEffect(() => {
+    if (isSpeechRec) {
+      setInput(`${speechTranscript}${speechInterim ? ` ${speechInterim}` : ''}`.trim());
     }
+  }, [speechTranscript, speechInterim, isSpeechRec, setInput]);
 
-    // שליחה סופית לשרת דרך ה-Hook
-    await handleSubmit(finalAudioUrl); 
-  } catch (err) {
-    console.error("שגיאה בסיום הראיון:", err);
-  }
-};
+  // שמירת הקלטות
+  useEffect(() => {
+    if (audioBlob) {
+      setAllRecordings(prev => [...prev, audioBlob]);
+    }
+  }, [audioBlob]);
+
+  const handleFinalSubmit = async () => {
+    let finalAudioUrl = null;
+
+    try {
+      if (allRecordings.length > 0) {
+        // מוצאים את ההקלטה הכי ארוכה
+        const longestBlob = allRecordings.reduce((prev, current) =>
+          (prev.size > current.size) ? prev : current
+        );
+
+        // מעלים ל-S3 - וודאי ששלחת את המייל ב-candidateInfo
+        const email = candidateInfo?.email || 'candidate';
+        finalAudioUrl = await uploadAudioFile(longestBlob, email);
+      }
+
+      // שליחה סופית לשרת דרך ה-Hook
+      await handleSubmit(finalAudioUrl);
+    } catch (err) {
+      console.error("שגיאה בסיום הראיון:", err);
+    }
+  };
   function handleRecordClick() {
     if (isAudioRec) {
-      stopRecording(); // מפסיק הקלטת אודיו (ל-S3)
-      stopSpeech((finalTranscript) => { // מפסיק תמלול (לצ'אט)
+      stopRecording();
+      stopSpeech((finalTranscript) => {
         setInput(finalTranscript);
       });
       return;
     }
-    setInput('');
-    startRecording(); // מתחיל הקלטת אודיו
-    startSpeech();    // מתחיל תמלול
-  }
 
+    setInput('');
+    startRecording();
+    startSpeech();
+  }
   function handleKeyDown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -154,11 +153,11 @@ const handleFinalSubmit = async () => {
       {recError ? <div style={styles.warning}>{recError}</div> : null}
       {submitError ? <div style={styles.error}>{submitError}</div> : null}
 
-     {/* אזור הקלט או כפתור סיום */}
+      {/* אזור הקלט או כפתור סיום */}
       {done ? (
         <div style={{ padding: '1.25rem 1.5rem', background: '#faf8fc', borderTop: '2px solid #d4d0dc', textAlign: 'center' }}>
-          <button 
-            onClick={handleFinalSubmit} 
+          <button
+            onClick={handleFinalSubmit}
             disabled={submitting}
             style={{
               width: '100%',
@@ -190,34 +189,34 @@ const handleFinalSubmit = async () => {
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={isRecording ? 'מאזין...' : 'הקלד/י תשובה...'}
-              disabled={isInputDisabled}
-              style={{ ...styles.textarea, color: isRecording ? '#e83b7c' : '#1f1535' }}
+              placeholder={isSpeechRec ? 'מאזין...' : 'הקלד/י תשובה...'}
+
+              style={{ ...styles.textarea, color: isSpeechRec ? '#e83b7c' : '#1f1535' }} disabled={isInputDisabled}
             />
 
-            {supported ? (
-              <button
-                onClick={handleRecordClick}
-                disabled={submitting}
-                title={isRecording ? 'עצור הקלטה' : 'התחל הקלטה'}
-                style={{
-                  ...styles.recBtn,
-                  boxShadow: isRecording ? '0 0 0 3px #d4a017, 0 0 0 6px rgba(212,160,23,0.22)' : '0 0 0 2px #d4d0dc',
-                  animation: isRecording ? 'recPulse 1.2s ease-in-out infinite' : 'none',
-                }}
-              >
-                {isRecording ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#ea580c">
-                    <rect x="5" y="5" width="14" height="14" rx="2" />
-                  </svg>
-                ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#1f3563">
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
-                    <path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-                  </svg>
-                )}
-              </button>
-            ) : null}
+            {/* כפתור הקלטה */}
+<button
+  onClick={handleRecordClick}
+  style={{
+    ...styles.recBtn,
+    // כאן התיקון: משתמשים ב-isAudioRec כדי להפעיל את האנימציה
+    animation: isAudioRec ? 'recPulse 1.2s ease-in-out infinite' : 'none',
+    background: isAudioRec ? '#ff375c' : '#f0f2f5',
+  }}
+  title={isAudioRec ? 'עצור הקלטה' : 'הקלט תשובה'}
+>
+  {/* כאן התיקון: אם מקליטים (isAudioRec), מציגים ריבוע עצירה. אם לא, מציגים מיקרופון */}
+  {isAudioRec ? (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+      <rect x="6" y="6" width="12" height="12" rx="2" />
+    </svg>
+  ) : (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="#65676b">
+      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+      <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+    </svg>
+  )}
+</button>
           </div>
         </div>
       )}
