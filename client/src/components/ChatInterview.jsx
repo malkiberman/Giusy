@@ -1,8 +1,9 @@
-import { useEffect, useState,useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { interviewQuestions } from '../config/interviewQuestions';
 import { useSpeechRecorder } from '../hooks/useSpeechRecorder';
+import { useAudioRecorder } from '../hooks/useAudioRecorder'; // להוסיף
 import useInterview from '../hooks/useInterview';
-
+import { uploadAudioFile } from '../api'; // להוסיף
 
 export default function ChatInterview({ onConversationEnd, candidateInfo }) {
   const bottomRef = useRef(null);
@@ -30,7 +31,23 @@ const [allRecordings, setAllRecordings] = useState([]); // לשמור את כל 
     handleSend,
     handleSubmit,
   } = useInterview({ candidateInfo, onConversationEnd, reset });
+const { 
+    isRecording: isAudioRec, 
+    audioBlob, 
+    startRecording, 
+    stopRecording 
+  } = useAudioRecorder();
 
+  const {
+    isRecording: isSpeechRec,
+    transcript,
+    interim,
+    supported,
+    error: recError,
+    start: startSpeech,
+    stop: stopSpeech,
+    reset,
+  } = useSpeechRecorder('he-IL');
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, interim]);
@@ -41,10 +58,10 @@ const [allRecordings, setAllRecordings] = useState([]); // לשמור את כל 
     }
   }, [transcript, interim, isRecording]);
 useEffect(() => {
-  if (audioBlob) {
-    setAllRecordings(prev => [...prev, audioBlob]);
-  }
-}, [audioBlob]);
+    if (audioBlob) {
+      setAllRecordings(prev => [...prev, audioBlob]);
+    }
+  }, [audioBlob]);
 const handleFinalSubmit = async () => {
   let finalAudioUrl = null;
 
@@ -67,15 +84,16 @@ const handleFinalSubmit = async () => {
   }
 };
   function handleRecordClick() {
-    if (isRecording) {
-      stop((finalTranscript) => {
+    if (isAudioRec) {
+      stopRecording(); // מפסיק הקלטת אודיו (ל-S3)
+      stopSpeech((finalTranscript) => { // מפסיק תמלול (לצ'אט)
         setInput(finalTranscript);
       });
       return;
     }
-
     setInput('');
-    start();
+    startRecording(); // מתחיל הקלטת אודיו
+    startSpeech();    // מתחיל תמלול
   }
 
   function handleKeyDown(event) {

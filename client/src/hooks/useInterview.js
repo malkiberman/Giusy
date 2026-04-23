@@ -30,15 +30,21 @@ async function handleSubmit(audioUrlFromComponent = null) {
   }
 
   try {
+  
     setSubmitting(true);
+    
+    // וודאי שהמערך נבנה נכון מה-state הנוכחי של answers
     const plainAnswersForServer = answers.map(({ questionId, answer }) => ({
       questionId,
       answer,
     }));
 
-    // שליחה לשרת הכוללת את ה-audioUrl
-    const result = await submitInterviewAnalysis(candidateId, plainAnswersForServer, audioUrlFromComponent);
-    
+    // הקריאה ל-API (שלב הניתוח)
+    const result = await submitInterviewAnalysis(
+      candidateId, 
+      plainAnswersForServer, 
+      audioUrlFromComponent // ה-URL מה-S3 עובר כאן
+    );
     pushBot(DONE_MESSAGE);
     onConversationEnd?.({ ...candidateInfo, _id: candidateId, analysis: result });
     setDone(true);
