@@ -1,10 +1,10 @@
 .page {
-  padding: 2.25rem 2.5rem;
-  max-width: 1100px;
+  padding: 2rem 2rem;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
-/* ── Header ── */
+/* Header Section */
 .header {
   display: flex;
   justify-content: space-between;
@@ -14,36 +14,37 @@
 
 .titleGroup {
   position: relative;
-  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
-/* Navy to pink vertical accent bar next to title */
+/* Brand accent bar next to title (RTL) */
 .titleGroup::before {
   content: '';
   position: absolute;
-  left: 0;
+  right: 0;
   top: 4px;
   bottom: 4px;
   width: 3px;
-  background: linear-gradient(180deg, var(--primary), var(--accent-pink));
-  border-radius: 999px;
+  background: linear-gradient(180deg, var(--primary), var(--primary-deep));
+  border-radius: var(--radius-full);
 }
 
 .title {
-  font-size: 1.75rem;
+  font-size: 1.625rem;
   font-weight: 800;
-  color: var(--primary);
-  margin: 0 0 0.2rem;
-  letter-spacing: -0.6px;
+  color: var(--primary-deep);
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
   color: var(--text-secondary);
   font-size: 0.875rem;
   margin: 0;
+  font-weight: 500;
 }
 
-/* ── Stat Cards ── */
+/* Stat Cards */
 .cards {
   display: flex;
   gap: 1rem;
@@ -54,24 +55,22 @@
 .statCard {
   flex: 1;
   min-width: 140px;
-  background: #fff;
-  border-radius: 14px;
+  background: var(--bg);
+  border-radius: var(--radius-lg);
   padding: 1.25rem 1.5rem;
   position: relative;
   overflow: hidden;
-  /* gradient border trick */
-  border: 1.5px solid transparent;
-  background-clip: padding-box;
-  box-shadow: 0 2px 12px rgba(13, 27, 61, 0.09);
-  transition: transform 0.15s, box-shadow 0.15s;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
 }
 
 .statCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(13, 27, 61, 0.14);
+  box-shadow: var(--shadow-card);
 }
 
-/* decorative top bar per card — color set inline via --accent CSS var */
+/* Decorative top bar per card */
 .statCard::before {
   content: '';
   position: absolute;
@@ -79,37 +78,25 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: var(--card-accent, #7c3aed);
-  border-radius: 14px 14px 0 0;
-}
-
-/* subtle pink corner glint */
-.statCard::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 48px;
-  height: 48px;
-  background: radial-gradient(circle at top right, rgba(232, 59, 124, 0.12), transparent 70%);
-  border-radius: 0 14px 0 0;
+  background: var(--card-accent, var(--primary));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .statValue {
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 800;
   line-height: 1;
-  color: var(--card-accent, #7c3aed);
-  margin-bottom: 0.3rem;
+  color: var(--card-accent, var(--primary));
+  margin-bottom: 0.35rem;
 }
 
 .statLabel {
   font-size: 0.8rem;
-  color: #7c6f8e;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
-/* ── Filter buttons ── */
+/* Filter Buttons */
 .filters {
   display: flex;
   gap: 0.5rem;
@@ -117,44 +104,41 @@
 }
 
 .filterBtn {
-  padding: 0.4rem 1.1rem;
-  border-radius: 999px;
-  border: 1.5px solid #ddd6fe;
-  background: #fff;
-  color: #6d28d9;
+  padding: 0.5rem 1.125rem;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--primary-deep);
   font-weight: 600;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s ease;
 }
 
 .filterBtn:hover {
-  border-color: #7c3aed;
-  background: #faf5ff;
+  border-color: var(--primary);
+  background: var(--accent-soft);
+  color: var(--primary);
 }
 
 .filterBtnActive {
-  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  background: var(--gradient-button);
   border-color: transparent;
   color: #fff;
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
-/* ── Table ── */
+/* Table Wrapper */
 .tableWrap {
-  background: #fff;
-  border-radius: 16px;
+  background: var(--bg);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  /* gradient border */
-  border: 1.5px solid transparent;
-  background-clip: padding-box;
-  box-shadow:
-    0 0 0 1.5px #ede9fe,
-    0 4px 24px rgba(124, 58, 237, 0.08);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-base);
   position: relative;
 }
 
-/* purple→gold top accent line on the table card */
+/* Brand accent line on top */
 .tableWrap::before {
   content: '';
   position: absolute;
@@ -162,46 +146,46 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, #7c3aed 0%, #a855f7 50%, #d4a017 100%);
+  background: linear-gradient(90deg, var(--primary-deep) 0%, var(--primary) 50%, var(--primary-light) 100%);
   z-index: 1;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
 }
 
 .table thead tr {
-  background: linear-gradient(to right, #faf5ff, #fefce8);
-  border-bottom: 1.5px solid #ede9fe;
+  background: linear-gradient(to right, var(--bg-soft), var(--bg-lighter));
+  border-bottom: 1px solid var(--border);
 }
 
 .table th {
   padding: 1rem 1.25rem;
   text-align: right;
   font-weight: 700;
-  color: #6d28d9;
+  color: var(--primary-deep);
   font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.7px;
+  letter-spacing: 0.05em;
 }
 
 .table td {
-  padding: 0.95rem 1.25rem;
-  color: #374151;
-  border-bottom: 1px solid #f5f3ff;
+  padding: 0.9rem 1.25rem;
+  color: var(--text);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .row {
   cursor: pointer;
-  transition: background 0.12s;
+  transition: background 0.15s ease;
 }
 
 .row:hover {
-  background: #faf5ff;
-  /* gold right flash on hover (RTL) */
-  box-shadow: inset -3px 0 0 #d4a017;
+  background: var(--accent-soft);
+  /* Brand accent on hover (RTL) */
+  box-shadow: inset -3px 0 0 var(--primary);
 }
 
 .row:last-child td {
@@ -210,15 +194,14 @@
 
 .name {
   font-weight: 700;
-  color: #1f1535 !important;
+  color: var(--text) !important;
 }
 
 .badge {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.76rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
   font-weight: 700;
-  text-transform: capitalize;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.02em;
 }
