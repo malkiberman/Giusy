@@ -10,7 +10,7 @@ async function sendPromptAndQaFromEnv(questions = [], answers = []) {
 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${googleKey}`;  // 1. הנתיב שהוכחנו שעובד מה-Log שלך
   let basePrompt = '';
   try {
-const promptPath = path.join(process.cwd(), 'prompt');    console.log('Trying to read from:', promptPath);
+const promptPath = path.join(process.cwd(), 'prompts', 'prompt');    console.log('Trying to read from:', promptPath);
     basePrompt = await fs.readFile(promptPath, 'utf8');
     console.log('✅ Prompt loaded successfully from verified path');
   } catch (err) {
