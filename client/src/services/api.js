@@ -79,12 +79,17 @@ export async function uploadAudioFile(audioBlob, candidateEmail) {
   const formData = new FormData();
   // שם הקובץ יהיה המייל של המועמד (למשל: test@gmail.com.webm)
   const fileName = `${candidateEmail.replace(/[^a-zA-Z0-9]/g, '_')}.webm`; 
-  formData.append('audio', audioBlob, fileName);
+  formData.append('candidateId', candidateId);
+  // השרת מקבל את זה כסטרינג בגלל ה-FormData
+  formData.append('answers', JSON.stringify(answers)); 
+  
+  if (audioBlob) {
+    formData.append('audio', audioBlob, 'interview_audio.webm');
+  }
 
-  const response = await fetch(`${BASE_URL}/api/upload-audio`, {
+  const response = await fetch(`${BASE_URL}/api/analysis`, { 
     method: 'POST',
-    body: formData, 
-    // ב-FormData לא שמים Content-Type ידני, הדפדפן עושה זאת לבד
+    body: formData,
   });
 
   if (!response.ok) throw new Error('העלאת הקלטה נכשלה');
