@@ -8,17 +8,27 @@ import { uploadAudioFile } from '../api'; // להוסיף
 export default function ChatInterview({ onConversationEnd, candidateInfo }) {
   const bottomRef = useRef(null);
 const [allRecordings, setAllRecordings] = useState([]); // לשמור את כל ה-Blobs
+  const { 
+    isRecording: isAudioRec, 
+    audioBlob, 
+    startRecording, 
+    stopRecording 
+  } = useAudioRecorder();
+
+  // 2. הוק תמלול (Speech to Text)
+  // שים לב לשימוש ב- : כדי לשנות את שמות המשתנים ולמנוע כפילות
   const {
-    isRecording,
-    transcript,
-    interim,
-    supported,
-    error: recError,
-    start,
-    stop,
-    reset,
+    isRecording: isSpeechRec,
+    transcript: speechTranscript, // שינוי שם כדי שלא יתנגש
+    interim: speechInterim,       // שינוי שם
+    supported: isSpeechSupported, // שינוי שם
+    error: speechError,           // שינוי שם
+    start: startSpeech,
+    stop: stopSpeech,
+    reset: resetSpeech,           // שינוי שם
   } = useSpeechRecorder('he-IL');
 
+  // 3. הוק ניהול הראיון
   const {
     messages,
     answers,
@@ -30,24 +40,11 @@ const [allRecordings, setAllRecordings] = useState([]); // לשמור את כל 
     submitError,
     handleSend,
     handleSubmit,
-  } = useInterview({ candidateInfo, onConversationEnd, reset });
-const { 
-    isRecording: isAudioRec, 
-    audioBlob, 
-    startRecording, 
-    stopRecording 
-  } = useAudioRecorder();
-
-  const {
-    isRecording: isSpeechRec,
-    transcript,
-    interim,
-    supported,
-    error: recError,
-    start: startSpeech,
-    stop: stopSpeech,
-    reset,
-  } = useSpeechRecorder('he-IL');
+  } = useInterview({ 
+    candidateInfo, 
+    onConversationEnd, 
+    reset: resetSpeech // מעבירים את הפונקציה עם השם החדש
+  });
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, interim]);
