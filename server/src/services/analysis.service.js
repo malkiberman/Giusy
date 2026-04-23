@@ -4,9 +4,10 @@ const { createConversationEntity } = require('./analysisConversation.service');
 
 class AnalysisService {
 
-async analyzeAndCreateConversation(candidateId, answers) {
+async analyzeAndCreateConversation(candidateId, answers, audioFile  = null) {
+  console.log("SERVICE audioFile:", audioFile);
   // 🔹 1. יצירת ניתוח מלא מה-AI
-  const analysisData = await createConversationEntity(candidateId, answers);
+  const analysisData = await createConversationEntity(candidateId, answers, audioFile);
 
   // 🔹 2. שמירה ב-DB
   const analysis = await AnalysisRepository.create({
