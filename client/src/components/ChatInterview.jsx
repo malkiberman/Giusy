@@ -7,25 +7,28 @@ import { uploadAudioFile } from '../services/api'; // להוסיף
 
 export default function ChatInterview({ onConversationEnd, candidateInfo }) {
   const bottomRef = useRef(null);
-  const [allRecordings, setAllRecordings] = useState([]); // לשמור את כל ה-Blobs
-  const {
-    isRecording: isAudioRec,
-    audioBlob,
-    startRecording,
-    stopRecording
+  const [allRecordings, setAllRecordings] = useState([]); 
+
+  // 1. הוק הקלטת אודיו (Blob ל-S3)
+  const { 
+    isRecording: isAudioRec, // שינינו ל-isAudioRec
+    audioBlob, 
+    startRecording, 
+    stopRecording 
   } = useAudioRecorder();
 
-  // תמלול דיבור (לטקסט)
+  // 2. הוק תמלול (Speech to Text)
   const {
-    isRecording: isSpeechRec,
-    transcript: speechTranscript,
-    interim: speechInterim,
-    supported: isSpeechSupported,
-    error: speechError,
+    isRecording: isSpeechRec, // שינינו ל-isSpeechRec
+    transcript: speechTranscript, 
+    interim: speechInterim,       
+    supported: isSpeechSupported, 
+    error: speechError,           
     start: startSpeech,
     stop: stopSpeech,
-    reset: resetSpeech,
-  } = useSpeechRecorder('he-IL')
+    reset: resetSpeech,           
+  } = useSpeechRecorder('he-IL');
+
   // 3. הוק ניהול הראיון
   const {
     messages,
@@ -38,30 +41,37 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
     submitError,
     handleSend,
     handleSubmit,
-  } = useInterview({
-    candidateInfo,
-    onConversationEnd,
-    reset: resetSpeech // מעבירים את הפונקציה עם השם החדש
-  });
-  // גלילה למטה - משתמש ב-speechInterim
+  } = useInterview({ candidateInfo, onConversationEnd, reset: resetSpeech });
+
+  // --- useEffect-ים מתוקנים ---
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, speechInterim]);
+  }, [messages, speechInterim]); // שונה ל-speechInterim
 
-  // עדכון הטקסט בתיבה - משתמש ב-isSpeechRec, speechTranscript ו-speechInterim
   useEffect(() => {
-    if (isSpeechRec) {
+    if (isSpeechRec) { // שונה ל-isSpeechRec
       setInput(`${speechTranscript}${speechInterim ? ` ${speechInterim}` : ''}`.trim());
     }
   }, [speechTranscript, speechInterim, isSpeechRec, setInput]);
 
-  // שמירת הקלטות
   useEffect(() => {
     if (audioBlob) {
       setAllRecordings(prev => [...prev, audioBlob]);
     }
   }, [audioBlob]);
 
+  // פונקציית הקלטה מתוקנת
+  function handleRecordClick() {
+    if (isAudioRec) { // שונה ל-isAudioRec
+      stopRecording();
+      stopSpeech((final) => setInput(final));
+    } else {
+      setInput('');
+      startRecording();
+      startSpeech();
+    }
+  }
   const handleFinalSubmit = async () => {
     let finalAudioUrl = null;
 
@@ -83,19 +93,7 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
       console.error("שגיאה בסיום הראיון:", err);
     }
   };
-  function handleRecordClick() {
-    if (isAudioRec) {
-      stopRecording();
-      stopSpeech((finalTranscript) => {
-        setInput(finalTranscript);
-      });
-      return;
-    }
 
-    setInput('');
-    startRecording();
-    startSpeech();
-  }
   function handleKeyDown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
