@@ -157,7 +157,6 @@ const handleFinalSubmit = async () => {
         <div style={styles.warning}>זיהוי דיבור אינו נתמך בדפדפן זה. מומלץ Chrome או Edge.</div>
       ) : null}
       {speechError ? <div style={styles.warning}>{speechError}</div> : null}
-      {submitError ? <div style={styles.error}>{submitError}</div> : null}
 
       {/* אזור הקלט או כפתור סיום */}
       {done ? (
