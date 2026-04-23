@@ -101,7 +101,7 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
     }
   }
 
-  const isInputDisabled = done || isRecording || submitting;
+  const isInputDisabled = done || isAudioRec || submitting;
 
   return (
     <div style={styles.wrapper}>
@@ -115,7 +115,7 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
         </div>
 
         <div style={styles.headerRight}>
-          {isRecording ? (
+          {isAudioRec ? (
             <div style={styles.recIndicator}>
               <span style={styles.recDot} />
               מקליט...
@@ -179,8 +179,8 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
           <div
             style={{
               ...styles.textareaWrap,
-              border: isRecording ? '2px solid #d4a017' : '2px solid #d4d0dc',
-              boxShadow: isRecording ? '0 0 0 3px rgba(212,160,23,0.18)' : 'none',
+              border: isAudioRec ? '2px solid #d4a017' : '2px solid #d4d0dc',
+              boxShadow: isAudioRec ? '0 0 0 3px rgba(212,160,23,0.18)' : 'none',
             }}
           >
             <textarea
