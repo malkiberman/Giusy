@@ -74,24 +74,17 @@ export async function fetchCandidates() {
 export async function fetchCandidateById(id) {
   const data = await request(`/api/candidates/${id}`);
   
-  // יצירת אובייקט מנורמל עם הגנות
-  const normalized = {
+  // נרמול הנתונים לפי האובייקט ששלחת
+  return {
     ...data,
     id: data._id || data.id,
-    // הגנה על אובייקט הניתוח
-    analysis: data.analysis ? {
-      ...data.analysis,
-      technical: {
-        // כאן אנחנו מוודאים ש-locationLabel קיים, גם אם השרת לא שלח אותו
-        locationLabel: data.analysis.technical?.locationLabel || 
-                       data.analysis.technical?.location || // אולי ה-AI קרא לזה location?
-                       'לא צוין', 
-        availability: data.analysis.technical?.availability || 'לא צוין'
-      }
-    } : null
+    // אם הנתונים מגיעים בתוך analysis, נשטח אותם מעט עבור ה-UI
+    technical: data.technical || data.analysis?.technical || {},
+    scores: data.scores || data.analysis?.scores || {},
+    summary: data.summary || data.analysis?.summary || '',
+    insights: data.insights || data.analysis?.insights || [],
+    recommendedQuestions: data.recommendedQuestions || data.analysis?.recommendedQuestions || []
   };
-
-  return normalized;
 }
 // פונקציה תומכת אחורנית למי שעדיין משתמש בשם הישן
 export const submitInterview = async (payload) => {

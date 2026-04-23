@@ -1,11 +1,13 @@
 import styles from './CandidateAnalysis.module.css';
 
 function availabilityLabel(value) {
-  return Number(value) === 1 ? 'זמין' : 'לא זמין / לא צוין';
+  // באובייקט שלך חוזר 0, נהפוך אותו לטקסט ידידותי
+  if (value === 0 || value === "0") return 'לא צוין / מיידי';
+  return value === 1 || value === "1" ? 'זמין' : value;
 }
 
 function relativeLabel(value) {
-  return Number(value) === 1 ? 'כן' : 'לא';
+  return value === 1 || value === "1" ? 'כן' : 'לא';
 }
 
 function InfoRow({ label, value }) {
@@ -18,13 +20,26 @@ function InfoRow({ label, value }) {
 }
 
 export default function CandidateSkills({ candidate }) {
+  // הגנה: חילוץ האובייקט הטכני בין אם הוא בתוך analysis ובין אם הוא ישיר
+  const technical = candidate?.technical || candidate?.analysis?.technical || {};
+
   return (
     <div className={styles.card}>
       <h3 className={styles.sectionTitle}>פרטים טכניים</h3>
       <div style={{ display: 'grid', gap: '0.65rem' }}>
-        <InfoRow label="מיקום" value={candidate.technical.locationLabel} />
-        <InfoRow label="זמינות" value={availabilityLabel(candidate.technical.availability)} />
-        <InfoRow label="קרוב משפחה בחברה" value={relativeLabel(candidate.technical.hasRelativeInCompany)} />
+        {/* תיקון: שימוש ב-location במקום locationLabel ובדיקה אם הוא 0 */}
+        <InfoRow 
+          label="מיקום" 
+          value={technical.location === 0 ? 'לא צוין' : (technical.location || 'לא ידוע')} 
+        />
+        <InfoRow 
+          label="זמינות" 
+          value={availabilityLabel(technical.availability)} 
+        />
+        <InfoRow 
+          label="קרוב משפחה בחברה" 
+          value={relativeLabel(technical.hasRelativeInCompany)} 
+        />
       </div>
     </div>
   );
