@@ -6,7 +6,7 @@ import useInterview from '../hooks/useInterview';
 
 export default function ChatInterview({ onConversationEnd, candidateInfo }) {
   const bottomRef = useRef(null);
-
+const [allRecordings, setAllRecordings] = useState([]); // לשמור את כל ה-Blobs
   const {
     isRecording,
     transcript,
@@ -40,7 +40,32 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
       setInput(`${transcript}${interim ? ` ${interim}` : ''}`.trim());
     }
   }, [transcript, interim, isRecording]);
+useEffect(() => {
+  if (audioBlob) {
+    setAllRecordings(prev => [...prev, audioBlob]);
+  }
+}, [audioBlob]);
+const handleFinalSubmit = async () => {
+  let finalAudioUrl = null;
 
+  try {
+    if (allRecordings.length > 0) {
+      // מוצאים את ההקלטה הכי ארוכה
+      const longestBlob = allRecordings.reduce((prev, current) => 
+        (prev.size > current.size) ? prev : current
+      );
+      
+      // מעלים ל-S3 - וודאי ששלחת את המייל ב-candidateInfo
+      const email = candidateInfo?.email || 'candidate';
+      finalAudioUrl = await uploadAudioFile(longestBlob, email);
+    }
+
+    // שליחה סופית לשרת דרך ה-Hook
+    await handleSubmit(finalAudioUrl); 
+  } catch (err) {
+    console.error("שגיאה בסיום הראיון:", err);
+  }
+};
   function handleRecordClick() {
     if (isRecording) {
       stop((finalTranscript) => {
@@ -110,48 +135,73 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
       {recError ? <div style={styles.warning}>{recError}</div> : null}
       {submitError ? <div style={styles.error}>{submitError}</div> : null}
 
-      <div style={styles.inputRow}>
-        <div
-          style={{
-            ...styles.textareaWrap,
-            border: isRecording ? '2px solid #d4a017' : '2px solid #d4d0dc',
-            boxShadow: isRecording ? '0 0 0 3px rgba(212,160,23,0.18)' : 'none',
-          }}
-        >
-          <textarea
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={done ? 'הראיון הסתיים.' : isRecording ? 'מאזין...' : 'הקלד/י תשובה...'}
-            disabled={isInputDisabled}
-            style={{ ...styles.textarea, color: isRecording ? '#e83b7c' : '#1f1535' }}
-          />
-
-          {supported ? (
-            <button
-              onClick={handleRecordClick}
-              disabled={done || submitting}
-              title={isRecording ? 'עצור הקלטה' : 'התחל הקלטה'}
-              style={{
-                ...styles.recBtn,
-                boxShadow: isRecording ? '0 0 0 3px #d4a017, 0 0 0 6px rgba(212,160,23,0.22)' : '0 0 0 2px #d4d0dc',
-                animation: isRecording ? 'recPulse 1.2s ease-in-out infinite' : 'none',
-              }}
-            >
-              {isRecording ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#ea580c">
-                  <rect x="5" y="5" width="14" height="14" rx="2" />
-                </svg>
-              ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#1f3563">
-                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
-                  <path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-                </svg>
-              )}
-            </button>
-          ) : null}
+     {/* אזור הקלט או כפתור סיום */}
+      {done ? (
+        <div style={{ padding: '1.25rem 1.5rem', background: '#faf8fc', borderTop: '2px solid #d4d0dc', textAlign: 'center' }}>
+          <button 
+            onClick={handleFinalSubmit} 
+            disabled={submitting}
+            style={{
+              width: '100%',
+              padding: '1rem',
+              background: 'linear-gradient(135deg, #1f3563, #2d4a80)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '1.1rem',
+              fontWeight: 'bold',
+              cursor: submitting ? 'not-allowed' : 'pointer',
+              boxShadow: '0 4px 12px rgba(31,53,99,0.2)',
+              opacity: submitting ? 0.7 : 1
+            }}
+          >
+            {submitting ? 'מעבד ושומר נתונים...' : 'לחץ כאן לסיום ושליחת הראיון'}
+          </button>
         </div>
-      </div>
+      ) : (
+        <div style={styles.inputRow}>
+          <div
+            style={{
+              ...styles.textareaWrap,
+              border: isRecording ? '2px solid #d4a017' : '2px solid #d4d0dc',
+              boxShadow: isRecording ? '0 0 0 3px rgba(212,160,23,0.18)' : 'none',
+            }}
+          >
+            <textarea
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={isRecording ? 'מאזין...' : 'הקלד/י תשובה...'}
+              disabled={isInputDisabled}
+              style={{ ...styles.textarea, color: isRecording ? '#e83b7c' : '#1f1535' }}
+            />
+
+            {supported ? (
+              <button
+                onClick={handleRecordClick}
+                disabled={submitting}
+                title={isRecording ? 'עצור הקלטה' : 'התחל הקלטה'}
+                style={{
+                  ...styles.recBtn,
+                  boxShadow: isRecording ? '0 0 0 3px #d4a017, 0 0 0 6px rgba(212,160,23,0.22)' : '0 0 0 2px #d4d0dc',
+                  animation: isRecording ? 'recPulse 1.2s ease-in-out infinite' : 'none',
+                }}
+              >
+                {isRecording ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#ea580c">
+                    <rect x="5" y="5" width="14" height="14" rx="2" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#1f3563">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+                    <path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                  </svg>
+                )}
+              </button>
+            ) : null}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -168,6 +218,19 @@ const styles = {
     border: '1px solid #d4d0dc',
     overflow: 'hidden',
     boxShadow: '0 8px 32px rgba(13,27,61,0.12)',
+  },
+  finalSubmitBtn: {
+    width: '100%',
+    padding: '1rem',
+    background: 'linear-gradient(135deg, #1f3563, #2d4a80)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '12px',
+    fontSize: '1.1rem',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: '0 4px 12px rgba(31,53,99,0.2)',
+    transition: 'transform 0.2s',
   },
   header: {
     display: 'flex',

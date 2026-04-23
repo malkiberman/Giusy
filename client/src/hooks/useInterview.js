@@ -21,41 +21,30 @@ export default function useInterview({ candidateInfo, onConversationEnd, reset }
     setMessages((prev) => [...prev, { from: 'bot', text }]);
   }
 
-async function handleSubmit(finalAnswers) {
-  // 1. חילוץ ה-ID של המועמד
-  const candidateId = 
-    candidateInfo?._id ||    
-    candidateInfo?.id ||     
-    candidateInfo?.data?._id;
+async function handleSubmit(audioUrlFromComponent = null) {
+  const candidateId = candidateInfo?._id || candidateInfo?.id;
 
   if (!candidateId) {
-    setSubmitError('לא נמצא מזהה מועמד. אנא נסה להירשם מחדש.');
+    setSubmitError('לא נמצא מזהה מועמד.');
     return;
   }
 
-  setSubmitting(true);
   try {
-    // --- התיקון הקריטי כאן ---
-    // הופכים את מערך האובייקטים למערך של מחרוזות (Strings) בלבד
-    // זה מה שה-Backend וה-Schema של מונגו מצפים לקבל
-    const plainAnswersForServer = finalAnswers.map(item => item.answer);
+    setSubmitting(true);
+    const plainAnswersForServer = answers.map(({ questionId, answer }) => ({
+      questionId,
+      answer,
+    }));
 
-    console.log("📤 שולח תשובה מנוקה לשרת:", plainAnswersForServer);
-
-    // שליחה לשרת עם המערך המנוקה
-    const result = await submitInterviewAnalysis(candidateId, plainAnswersForServer);
+    // שליחה לשרת הכוללת את ה-audioUrl
+    const result = await submitInterviewAnalysis(candidateId, plainAnswersForServer, audioUrlFromComponent);
     
-    // אם הגענו לכאן, השרת החזיר 201 והכל נשמר
     pushBot(DONE_MESSAGE);
-    
-    // מעביר את התוצאה לדף ה-Completion
     onConversationEnd?.({ ...candidateInfo, _id: candidateId, analysis: result });
     setDone(true);
 
   } catch (error) {
-    console.error("🔥 שגיאה בשמירת הראיון:", error);
-    // מציג הודעה למשתמש
-    setSubmitError(error.message || 'לא הצלחנו לשמור את תשובות הראיון.');
+    setSubmitError(error.message || 'לא הצלחנו לשמור את התשובות.');
   } finally {
     setSubmitting(false);
   }
@@ -83,8 +72,9 @@ async function handleSubmit(finalAnswers) {
       return;
     }
 
-    setDone(true);
-    handleSubmit(newAnswers);
+    // שינוי כאן: רק מסמנים שסיימנו, לא קוראים ל-handleSubmit אוטומטית
+    setDone(true); 
+    // מחקנו את השורה שקוראת ל-handleSubmit(newAnswers);
   }
 
   function handleSend() {
@@ -105,3 +95,6 @@ async function handleSubmit(finalAnswers) {
     handleSubmit,
   };
 }
+
+
+
