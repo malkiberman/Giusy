@@ -2,15 +2,15 @@ const axios = require('axios');
 const fs = require('fs/promises');
 const path = require('path');
 
-async function sendPromptAndQaFromEnv(questions = [], answers = []) {
+async function sendPromptAndQaFromEnv(questions = [], answers = [], audioFeatures = null) {
   const googleKey = process.env.GOOGLE_API_KEY;
   if (!googleKey) throw new Error('Missing GOOGLE_API_KEY');
 
   // שינוי ל-v1beta - הגרסה הזו תומכת ב-1.5 flash בצורה הכי יציבה
-const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${googleKey}`;  // 1. הנתיב שהוכחנו שעובד מה-Log שלך
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${googleKey}`;  // 1. הנתיב שהוכחנו שעובד מה-Log שלך
   let basePrompt = '';
   try {
-const promptPath = path.join(process.cwd(),'src', 'prompts', 'prompt.txt');    console.log('Trying to read from:', promptPath);
+    const promptPath = path.join(process.cwd(), 'src', 'prompts', 'prompt.txt'); console.log('Trying to read from:', promptPath);
     basePrompt = await fs.readFile(promptPath, 'utf8');
     console.log('✅ Prompt loaded successfully from verified path');
   } catch (err) {
@@ -18,8 +18,16 @@ const promptPath = path.join(process.cwd(),'src', 'prompts', 'prompt.txt');    c
     basePrompt = "נתח את הראיון הבא והחזר JSON בלבד.";
   }
 
+  //סידור הניתוח לשליחה - אפציאונאלי
+  let audioSection = "";
+  if (audioFeatures) {
+    audioSection = `
+    Audio Analysis (optional):
+   ${JSON.stringify(audioFeatures, null, 2)}
+`;}
+
   // 2. בניית הטקסט
-  const fullText = `${basePrompt}\n\nReturn ONLY a valid JSON object.\n\nQuestions:\n${questions.join('\n')}\n\nAnswers:\n${answers.join('\n')}`;
+  const fullText = `${basePrompt}\n\nReturn ONLY a valid JSON object.\n\nQuestions:\n${questions.join('\n')}\n\nAnswers:\n${answers.join('\n')}${audioSection}`;
 
   const payload = {
     contents: [{
@@ -28,12 +36,12 @@ const promptPath = path.join(process.cwd(),'src', 'prompts', 'prompt.txt');    c
   };
 
   try {
-const resp = await axios.post(url, payload, {
-  headers: {
-    'Content-Type': 'application/json',
-    'X-goog-api-key': googleKey
-  }
-});    
+    const resp = await axios.post(url, payload, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-goog-api-key': googleKey
+      }
+    });
     if (resp.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
       return resp.data.candidates[0].content.parts[0].text;
     }

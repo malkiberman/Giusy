@@ -3,37 +3,48 @@ const fs = require('fs/promises');
 const path = require('path');
 const { parseJsonResponse, buildRawAnswersMap, buildScoreArrays } = require('./jsonAndArrayUtils');
 const { calculateFinalScore } = require('./score.service');
+const { sendAudioToPython } = require('./pythonAnalysis.service');
 
-async function createConversationEntity(candidateId, answers, providedQuestions = null) {
+async function createConversationEntity(candidateId, answers, audioFile = null) {
   if (!candidateId) throw new Error('candidateId is required.');
   if (!Array.isArray(answers) || answers.length === 0) {
     throw new Error('answers must be a non-empty array');
   }
 
-  // 🔹 1. שליפת שאלות
-  let questions = Array.isArray(providedQuestions) ? providedQuestions : [];
 
-  if (questions.length === 0) {
-    const qaFilePath =
-      process.env.QA_FILE_PATH ||
-      path.join(__dirname, '..', '..', 'data', 'questions.json');
+  //כל עניין ניתוח הקול
+  let audioFeatures = null;
 
-    const content = await fs.readFile(qaFilePath, 'utf8');
-    const data = JSON.parse(content);
-
-    if (Array.isArray(data)) {
-      questions = data.map(q => q.question || q);
-    } else if (Array.isArray(data.questions)) {
-      questions = data.questions;
-    } else {
-      throw new Error('Invalid questions format');
-    }
+  if (audioFile) {
+    audioFeatures = await sendAudioToPython(audioFile, answers);
   }
+
+  // 🔹 1. שליפת שאלות
+  const qaFilePath =
+    process.env.QA_FILE_PATH ||
+    path.join(__dirname, '..', '..', 'data', 'questions.json');
+
+  const content = await fs.readFile(qaFilePath, 'utf8');
+  const data = JSON.parse(content);
+
+  if (Array.isArray(data)) {
+    questions = data.map(q => q.question || q);
+  } else if (Array.isArray(data.questions)) {
+    questions = data.questions;
+  } else {
+    throw new Error('Invalid questions format');
+  }
+
 
   // 🔹 2. קריאה ל-AI
   let aiRaw;
   try {
-    aiRaw = await sendPromptAndQaFromEnv(questions, answers);
+    aiRaw = await sendPromptAndQaFromEnv(
+      questions,
+      answers,
+      audioFeatures
+    );
+
   } catch (err) {
     console.error('[AI ERROR]', err?.message || err);
     throw new Error('AI processing failed');
