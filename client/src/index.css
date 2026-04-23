@@ -1,14 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Bituach Yeshir Brand - Professional Colors */
-  --primary-deep: #0d1b3d;
-  --primary: #1f3563;
-  --primary-light: #2d4a80;
-  --primary-lighter: #3d5a99;
-  --accent-pink: #e83b7c;
-  --accent-pink-light: #f057a6;
-  --accent-soft: #fce8f3;
+  /* Giusy Brand - Professional Colors */
+  --primary-deep: #1e285a;
+  --primary: #1e285a;
+  --primary-light: #2d3a6e;
+  --primary-lighter: #3d4a82;
+  --accent-pink: #ff375c;
+  --accent-pink-light: #ff5a7a;
+  --accent-soft: #fff0f3;
   
   /* Text Colors */
   --text: #1a1a2e;
@@ -33,11 +33,11 @@
   --error-light: #fee2e2;
   
   /* Gradients */
-  --gradient-hero: linear-gradient(135deg, #0d1b3d 0%, #1f3563 50%, #2d4a80 100%);
-  --gradient-hero-subtle: linear-gradient(135deg, rgba(31, 53, 99, 0.05) 0%, rgba(45, 74, 128, 0.05) 100%);
-  --gradient-progress: linear-gradient(90deg, #1f3563, #e83b7c);
-  --gradient-button: linear-gradient(135deg, #1f3563 0%, #2d4a80 100%);
-  --gradient-accent: linear-gradient(135deg, #e83b7c 0%, #f057a6 100%);
+  --gradient-hero: linear-gradient(135deg, #1e285a 0%, #2d3a6e 50%, #3d4a82 100%);
+  --gradient-hero-subtle: linear-gradient(135deg, rgba(30, 40, 90, 0.05) 0%, rgba(45, 58, 110, 0.05) 100%);
+  --gradient-progress: linear-gradient(90deg, #1e285a, #ff375c);
+  --gradient-button: linear-gradient(135deg, #1e285a 0%, #2d3a6e 100%);
+  --gradient-accent: linear-gradient(135deg, #ff375c 0%, #ff5a7a 100%);
   
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);

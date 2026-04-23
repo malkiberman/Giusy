@@ -16,7 +16,7 @@
   top: 0;
   z-index: 10;
   /* gradient underline instead of flat border */
-  box-shadow: 0 1px 0 0 #ede9fe, 0 2px 12px rgba(124, 58, 237, 0.06);
+  box-shadow: 0 1px 0 0 #ede9fe, 0 2px 12px rgba(30, 40, 90, 0.06);
 }
 
 /* Pink accent line across the bottom of navbar */
@@ -27,14 +27,14 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #1f3563 0%, #e83b7c 50%, #f057a6 100%);
+  background: linear-gradient(90deg, #1e285a 0%, #ff375c 50%, #ff5a7a 100%);
 }
 
 .brand {
   font-size: 1.2rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #1f3563 30%, #e83b7c 100%);
+  background: linear-gradient(135deg, #1e285a 30%, #ff375c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -43,9 +43,9 @@
 .navTag {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #e83b7c;
-  background: linear-gradient(135deg, #fce8f3, #fce8f3);
-  border: 1px solid #e83b7c;
+  color: #ff375c;
+  background: linear-gradient(135deg, #fff0f3, #fff0f3);
+  border: 1px solid #ff375c;
   padding: 0.2rem 0.7rem;
   border-radius: 999px;
   letter-spacing: 0.3px;

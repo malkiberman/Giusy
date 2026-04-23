@@ -59,20 +59,28 @@ function extractAnalysisRecord(source = {}) {
 
 export function normalizeCandidate(record = {}) {
   const analysis = extractAnalysisRecord(record);
-  const finalScore = Number(analysis.finalScore ?? record.finalScore ?? record.score ?? 0);
+  
+  // טיפול בציון - אם הוא null או undefined, נשתמש ב-0
+  const rawFinalScore = analysis.finalScore ?? record.finalScore ?? record.score;
+  const finalScore = (rawFinalScore !== null && rawFinalScore !== undefined && !isNaN(Number(rawFinalScore))) 
+    ? Number(rawFinalScore) 
+    : 0;
+  
   const recommendedRole = Number(analysis.recommendedRole ?? record.recommendedRole ?? 0);
   const technical = analysis.technical || record.technical || {};
   const scores = analysis.scores || record.scores || {};
   const parameters = Array.isArray(record.parameters) && record.parameters.length
     ? record.parameters
     : deriveParameters(scores);
+  
+  // טיפול ב-QA - השרת מחזיר answers כמערך של strings
+  const rawAnswers = analysis.answers || analysis.rawAnswers || record.rawAnswers || [];
   const questions = analysis.questions || record.questions || [];
-  const rawAnswers = analysis.rawAnswers || record.rawAnswers || {};
 
   return {
-    // Candidate model fields
-    id: String(record.id ?? analysis.Id ?? analysis.candidateId ?? analysis.id ?? ''),
-    candidateId: String(record.candidateId ?? analysis.candidateId ?? ''),
+    // Candidate model fields - תמיכה ב-_id של MongoDB
+    id: String(record._id || record.id || analysis._id || analysis.id || analysis.candidateId || ''),
+    candidateId: String(record._id || record.candidateId || analysis.candidateId || ''),
     conversationId: String(record.conversationId ?? analysis.conversationId ?? ''),
     fullName: record.fullName || record.name || analysis.fullName || 'ללא שם',
     phone: record.phone || analysis.phone || '',
@@ -100,9 +108,28 @@ export function normalizeCandidate(record = {}) {
     weaknesses: record.weaknesses || [],
     recommendedQuestions: analysis.recommendedQuestions || record.recommendedQuestions || [],
     parameters,
-    qa: Array.isArray(record.qa) && record.qa.length ? record.qa : normalizeQa(rawAnswers, questions),
+    // QA - אם יש מערך answers מהשרת, נמיר אותו לפורמט עם שאלות
+    qa: Array.isArray(record.qa) && record.qa.length 
+      ? record.qa 
+      : normalizeQaFromAnswers(rawAnswers, questions),
     rawAnswers,
   };
+}
+
+// פונקציה חדשה - ממירה מערך תשובות לפורמט QA
+function normalizeQaFromAnswers(answers, questions = []) {
+  if (!answers || !Array.isArray(answers) || answers.length === 0) return [];
+  
+  // אם התשובות הן אובייקטים עם question/answer, נחזיר אותם כמו שהם
+  if (typeof answers[0] === 'object' && answers[0].question) {
+    return answers;
+  }
+  
+  // אם התשובות הן strings, נחבר אותן עם השאלות מ-interviewQuestions (מיובא בראש הקובץ)
+  return answers.map((answer, idx) => ({
+    question: questions[idx] || interviewQuestions[idx]?.text || `שאלה ${idx + 1}`,
+    answer: answer || '',
+  }));
 }
 
 export function normalizeCandidates(records = []) {

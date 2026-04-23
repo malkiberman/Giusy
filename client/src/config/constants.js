@@ -1,7 +1,7 @@
 export const PRIORITY_COLORS = {
-  high: { bg: '#dcfce7', color: '#16a34a' },
-  medium: { bg: '#fff7ed', color: '#ea580c' },
-  low: { bg: '#fee2e2', color: '#dc2626' },
+  high: { background: '#dcfce7', color: '#16a34a' },
+  medium: { background: '#fff0f3', color: '#ff375c' },
+  low: { background: '#fee2e2', color: '#dc2626' },
 };
 
 export const PRIORITY_LABELS = { high: 'גבוהה', medium: 'בינונית', low: 'נמוכה' };
