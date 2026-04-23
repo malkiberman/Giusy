@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import { interviewQuestions } from '../config/interviewQuestions';
 import { useSpeechRecorder } from '../hooks/useSpeechRecorder';
-import { useAudioRecorder } from '../hooks/useAudioRecorder.js'; // להוסיף
+import { useAudioRecorder } from '../hooks/useAudioRecorder'; // להוסיף
 import useInterview from '../hooks/useInterview';
 import { uploadAudioFile } from '../services/api'; // להוסיף
-
+import { submitUnifiedInterview } from '../services/api'; // ייבוא הפונקציה החדשה
 export default function ChatInterview({ onConversationEnd, candidateInfo }) {
   const bottomRef = useRef(null);
   const [allRecordings, setAllRecordings] = useState([]); 
@@ -72,28 +72,36 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
       startSpeech();
     }
   }
-  const handleFinalSubmit = async () => {
-    let finalAudioUrl = null;
+const handleFinalSubmit = async () => {
+  try {
+    setSubmitting(true);
 
-    try {
-      if (allRecordings.length > 0) {
-        // מוצאים את ההקלטה הכי ארוכה
-        const longestBlob = allRecordings.reduce((prev, current) =>
-          (prev.size > current.size) ? prev : current
-        );
-
-        // מעלים ל-S3 - וודאי ששלחת את המייל ב-candidateInfo
-        const email = candidateInfo?.email || 'candidate';
-        finalAudioUrl = await uploadAudioFile(longestBlob, email);
-      }
-
-      // שליחה סופית לשרת דרך ה-Hook
-      await handleSubmit(finalAudioUrl);
-    } catch (err) {
-      console.error("שגיאה בסיום הראיון:", err);
+    // מציאת ההקלטה הכי ארוכה
+    let longestBlob = null;
+    if (allRecordings.length > 0) {
+      longestBlob = allRecordings.reduce((prev, current) =>
+        (prev.size > current.size) ? prev : current
+      );
     }
-  };
 
+    // קריאה לפונקציית ה-API המרוכזת
+    const finalAnalysis = await submitUnifiedInterview(
+      candidateInfo?._id || candidateInfo?.id,
+      answers,
+      longestBlob
+    );
+
+    // עדכון שהסתיים בהצלחה
+    onConversationEnd?.(finalAnalysis);
+    setDone(true);
+
+  } catch (err) {
+    console.error("שגיאה בסיום הראיון:", err);
+    // כאן כדאי להוסיף setSubmitError(err.message) כדי שהמשתמש יראה מה קרה
+  } finally {
+    setSubmitting(false);
+  }
+};
   function handleKeyDown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();

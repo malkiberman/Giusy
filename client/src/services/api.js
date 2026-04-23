@@ -104,3 +104,35 @@ export async function submitInterviewAnalysis(candidateId, answers, audioKey = n
     }),
   });
 }
+
+
+// api.js
+
+/**
+ * שליחת הראיון המאוחד לשרת (טקסט + אודיו)
+ */
+export async function submitUnifiedInterview(candidateId, answers, audioBlob) {
+  const formData = new FormData();
+  
+  // הוספת הנתונים ל-FormData
+  formData.append('candidateId', candidateId);
+  formData.append('answers', JSON.stringify(answers)); // הפיכה לטקסט עבור השרת
+  
+  if (audioBlob) {
+    // שם הקובץ שחברה שלך תזהה ב-Multer
+    formData.append('audio', audioBlob, 'interview_audio.webm');
+  }
+
+  const response = await fetch(`${BASE_URL}/api/complete-and-analyze`, {
+    method: 'POST',
+    body: formData,
+    // חשוב: לא לשים Headers של Content-Type, הדפדפן עושה זאת לבד
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'שגיאה בשליחת הראיון המאוחד');
+  }
+
+  return await response.json();
+}
