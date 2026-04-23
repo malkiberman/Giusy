@@ -11,6 +11,7 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flas
   let basePrompt = '';
   try {
     const promptPath = path.join(__dirname, '..', 'prompts', 'prompt');
+    console.log('Trying to read from:', promptPath);
     basePrompt = await fs.readFile(promptPath, 'utf8');
     console.log('✅ Prompt loaded successfully from verified path');
   } catch (err) {

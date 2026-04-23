@@ -104,26 +104,7 @@ export default function CompletionPage({ candidateInfo, savedCandidate }) {
           </div>
 
           {/* Candidate info */}
-          <div className={`${styles.fadeIn} ${styles.candidateCard}`} style={{ animationDelay: '400ms' }}>
-            <h3 className={styles.cardTitle}>פרטיך</h3>
-            <div className={styles.infoGrid}>
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>שם:</span>
-                <span className={styles.infoValue}>{displayInfo?.fullName}</span>
-              </div>
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>אימייל:</span>
-                <span className={styles.infoValue}>{displayInfo?.email}</span>
-              </div>
-              <div className={styles.infoRow}>
-                <span className={styles.infoLabel}>טלפון:</span>
-                <span className={styles.infoValue}>{displayInfo?.phone}</span>
-              </div>
-            </div>
-            <button onClick={handleNewInterview} className={styles.newInterviewBtn}>
-              ראיון חדש
-            </button>
-          </div>
+        
         </div>
       </main>
 
