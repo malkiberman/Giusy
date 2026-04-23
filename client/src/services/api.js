@@ -68,14 +68,30 @@ export async function fetchCandidates() {
 /**
  * שליפת מועמד ספציפי כולל הניתוח שלו - קריאה מאוחדת
  */
+/**
+ * שליפת מועמד ספציפי כולל הניתוח שלו - עם הגנה מפני שדות חסרים
+ */
 export async function fetchCandidateById(id) {
-  // קריאה אחת לראוט המאוחד שיצרנו בשרת
   const data = await request(`/api/candidates/${id}`);
   
-  return {
+  // יצירת אובייקט מנורמל עם הגנות
+  const normalized = {
     ...data,
-    id: data._id || data.id
+    id: data._id || data.id,
+    // הגנה על אובייקט הניתוח
+    analysis: data.analysis ? {
+      ...data.analysis,
+      technical: {
+        // כאן אנחנו מוודאים ש-locationLabel קיים, גם אם השרת לא שלח אותו
+        locationLabel: data.analysis.technical?.locationLabel || 
+                       data.analysis.technical?.location || // אולי ה-AI קרא לזה location?
+                       'לא צוין', 
+        availability: data.analysis.technical?.availability || 'לא צוין'
+      }
+    } : null
   };
+
+  return normalized;
 }
 // פונקציה תומכת אחורנית למי שעדיין משתמש בשם הישן
 export const submitInterview = async (payload) => {
