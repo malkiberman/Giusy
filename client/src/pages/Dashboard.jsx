@@ -13,7 +13,7 @@ export default function Dashboard() {
 
   return (
     <RTLLayout className={styles.page}>
-  
+      <AppHeader />
       
       <div className={styles.header}>
         <div className={styles.titleGroup}>
@@ -23,9 +23,9 @@ export default function Dashboard() {
       </div>
 
       <div className={styles.cards}>
-        <StatCard label="סה״כ מועמדים" value={stats.total} accent="#1f3563" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
+        <StatCard label="סה״כ מועמדים" value={stats.total} accent="#1e285a" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
         <StatCard label="מעל 80%" value={stats.above80} accent="#16a34a" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
-        <StatCard label="50 - 80%" value={stats.mid} accent="#e83b7c" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
+        <StatCard label="50 - 80%" value={stats.mid} accent="#ff375c" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
         <StatCard label="מתחת ל-50%" value={stats.below50} accent="#dc2626" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
       </div>
 
@@ -132,12 +132,12 @@ function RangeSlider({ min, max, value, onChange }) {
 
   return (
     <div style={{ flex: 1, minWidth: '280px' }}>
-      <div style={{ position: 'relative', height: '8px', background: 'linear-gradient(90deg, #e11d48 0%, #f59e0b 25%, #22c55e 50%, #0ea5e9 75%, #7c3aed 100%)', borderRadius: '4px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+      <div style={{ position: 'relative', height: '8px', background: 'linear-gradient(90deg, #dc2626 0%, #ff375c 35%, #059669 100%)', borderRadius: '4px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(30,40,90,0.1)' }}>
         <div
           style={{
             position: 'absolute',
             height: '100%',
-            background: 'rgba(255, 255, 255, 0.2)',
+            background: 'rgba(255, 255, 255, 0.25)',
             left: `${minPercent}%`,
             right: `${100 - maxPercent}%`,
             pointerEvents: 'none',
@@ -191,30 +191,30 @@ function RangeSlider({ min, max, value, onChange }) {
         input[type="range"]::-webkit-slider-thumb {
           appearance: none;
           -webkit-appearance: none;
-          width: 22px;
-          height: 22px;
-          background: #1f2937;
+          width: 20px;
+          height: 20px;
+          background: #1e285a;
           border-radius: 50%;
           cursor: pointer;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          box-shadow: 0 2px 6px rgba(30, 40, 90, 0.4);
           border: 3px solid #fff;
         }
         input[type="range"]::-moz-range-thumb {
-          width: 22px;
-          height: 22px;
-          background: #1f2937;
+          width: 20px;
+          height: 20px;
+          background: #1e285a;
           border-radius: 50%;
           cursor: pointer;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          box-shadow: 0 2px 6px rgba(30, 40, 90, 0.4);
           border: 3px solid #fff;
         }
         input[type="range"]::-webkit-slider-thumb:hover {
-          background: #111827;
-          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          background: #ff375c;
+          box-shadow: 0 3px 8px rgba(255, 55, 92, 0.4);
         }
         input[type="range"]::-moz-range-thumb:hover {
-          background: #111827;
-          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          background: #ff375c;
+          box-shadow: 0 3px 8px rgba(255, 55, 92, 0.4);
         }
       `}</style>
     </div>

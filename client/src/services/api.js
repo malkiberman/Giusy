@@ -56,28 +56,12 @@ export async function fetchCandidates() {
 }
 
 /**
- * שליפת מועמד ספציפי כולל הניתוח שלו
- */
-/**
  * שליפת מועמד ספציפי כולל הניתוח שלו - קריאה מאוחדת
- */
-/**
- * שליפת מועמד ספציפי כולל הניתוח שלו - עם הגנה מפני שדות חסרים
+ * משתמשת ב-normalizeCandidate לנרמול מלא של הנתונים
  */
 export async function fetchCandidateById(id) {
   const data = await request(`/api/candidates/${id}`);
-  
-  // נרמול הנתונים לפי האובייקט ששלחת
-  return {
-    ...data,
-    id: data._id || data.id,
-    // אם הנתונים מגיעים בתוך analysis, נשטח אותם מעט עבור ה-UI
-    technical: data.technical || data.analysis?.technical || {},
-    scores: data.scores || data.analysis?.scores || {},
-    summary: data.summary || data.analysis?.summary || '',
-    insights: data.insights || data.analysis?.insights || [],
-    recommendedQuestions: data.recommendedQuestions || data.analysis?.recommendedQuestions || []
-  };
+  return normalizeCandidate(data);
 }
 // פונקציה תומכת אחורנית למי שעדיין משתמש בשם הישן
 export const submitInterview = async (payload) => {

@@ -1,51 +1,56 @@
 @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Bituach Yeshir Brand - Professional Colors */
-  --primary-deep: #0d1b3d;
-  --primary: #1f3563;
-  --primary-light: #2d4a80;
-  --primary-lighter: #3d5a99;
-  --accent-pink: #e83b7c;
-  --accent-pink-light: #f057a6;
-  --accent-soft: #fce8f3;
+  /* Direct Insurance Brand Colors */
+  --primary: #ff375c;
+  --primary-light: #ff5a7a;
+  --primary-lighter: #ff8a9d;
+  --primary-deep: #1e285a;
+  --primary-deep-light: #2d3a6e;
+  --primary-deep-lighter: #3d4a82;
+  
+  /* Accent Colors */
+  --accent: #ff375c;
+  --accent-light: #ff5a7a;
+  --accent-soft: #fff0f3;
   
   /* Text Colors */
   --text: #1a1a2e;
-  --text-secondary: #666d80;
-  --text-light: #9ca3af;
+  --text-secondary: #5a6178;
+  --text-light: #8b93a7;
   
   /* Backgrounds */
   --bg: #ffffff;
-  --bg-soft: #fafbff;
-  --bg-lighter: #f5f3ff;
+  --bg-soft: #f8f9fc;
+  --bg-lighter: #f1f4f9;
   
   /* Borders */
-  --border: #e5e0ff;
-  --border-light: #f0ecff;
+  --border: #e2e6ef;
+  --border-light: #eef1f6;
   
   /* Status Colors */
   --success: #10b981;
   --success-light: #d1fae5;
-  --warning: #e83b7c;
-  --warning-light: #fce8f3;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
   --error: #ef4444;
   --error-light: #fee2e2;
   
   /* Gradients */
-  --gradient-hero: linear-gradient(135deg, #0d1b3d 0%, #1f3563 50%, #2d4a80 100%);
-  --gradient-hero-subtle: linear-gradient(135deg, rgba(31, 53, 99, 0.05) 0%, rgba(45, 74, 128, 0.05) 100%);
-  --gradient-progress: linear-gradient(90deg, #1f3563, #e83b7c);
-  --gradient-button: linear-gradient(135deg, #1f3563 0%, #2d4a80 100%);
-  --gradient-accent: linear-gradient(135deg, #e83b7c 0%, #f057a6 100%);
+  --gradient-hero: linear-gradient(135deg, #1e285a 0%, #2d3a6e 50%, #3d4a82 100%);
+  --gradient-hero-subtle: linear-gradient(135deg, rgba(30, 40, 90, 0.03) 0%, rgba(45, 58, 110, 0.03) 100%);
+  --gradient-progress: linear-gradient(90deg, #1e285a 0%, #ff375c 100%);
+  --gradient-button: linear-gradient(135deg, #ff375c 0%, #ff5a7a 100%);
+  --gradient-button-navy: linear-gradient(135deg, #1e285a 0%, #2d3a6e 100%);
+  --gradient-accent: linear-gradient(135deg, #ff375c 0%, #ff5a7a 100%);
   
   /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 2px 4px rgba(13, 27, 61, 0.08);
-  --shadow-base: 0 4px 12px rgba(13, 27, 61, 0.12);
-  --shadow-card: 0 8px 24px rgba(13, 27, 61, 0.15);
-  --shadow-lg: 0 12px 32px rgba(13, 27, 61, 0.18);
-  --shadow-xl: 0 20px 48px rgba(13, 27, 61, 0.25);
+  --shadow-xs: 0 1px 2px rgba(30, 40, 90, 0.04);
+  --shadow-sm: 0 2px 6px rgba(30, 40, 90, 0.06);
+  --shadow-base: 0 4px 12px rgba(30, 40, 90, 0.08);
+  --shadow-card: 0 8px 24px rgba(30, 40, 90, 0.1);
+  --shadow-lg: 0 12px 32px rgba(30, 40, 90, 0.12);
+  --shadow-xl: 0 20px 48px rgba(30, 40, 90, 0.16);
   
   /* Typography */
   --font-sans: 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
@@ -59,6 +64,13 @@
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
+  
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
   
   font-size: 16px;
   line-height: 1.6;
@@ -101,7 +113,7 @@ body {
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -112,7 +124,7 @@ body {
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-24px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -143,7 +155,7 @@ body {
     opacity: 1;
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.6;
   }
 }
 
@@ -152,7 +164,7 @@ body {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-12px);
+    transform: translateY(-8px);
   }
 }
 
@@ -167,28 +179,39 @@ body {
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(61, 44, 143, 0.3);
+    box-shadow: 0 0 16px rgba(255, 55, 92, 0.25);
   }
   50% {
-    box-shadow: 0 0 40px rgba(61, 44, 143, 0.6);
+    box-shadow: 0 0 32px rgba(255, 55, 92, 0.4);
+  }
+}
+
+@keyframes recPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.85;
   }
 }
 
 /* Animation Utilities */
 .animate-slide-up {
-  animation: slideUp 0.6s ease-out forwards;
+  animation: slideUp 0.5s ease-out forwards;
 }
 
 .animate-slide-down {
-  animation: slideDown 0.6s ease-out forwards;
+  animation: slideDown 0.5s ease-out forwards;
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.4s ease-out;
+  animation: fadeIn 0.35s ease-out;
 }
 
 .animate-fade-out {
-  animation: fadeOut 0.4s ease-out;
+  animation: fadeOut 0.35s ease-out;
 }
 
 .animate-pulse {
@@ -196,7 +219,7 @@ body {
 }
 
 .animate-bounce {
-  animation: bounce 0.8s ease-in-out infinite;
+  animation: bounce 1s ease-in-out infinite;
 }
 
 .animate-glow {
@@ -208,40 +231,40 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   color: var(--text);
   margin: 0;
-  font-weight: 800;
-  line-height: 1.2;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: 2.25rem;
   letter-spacing: -0.02em;
-  font-weight: 900;
-}
-
-h2 {
-  font-size: 1.875rem;
-  letter-spacing: -0.015em;
   font-weight: 800;
 }
 
+h2 {
+  font-size: 1.75rem;
+  letter-spacing: -0.015em;
+  font-weight: 700;
+}
+
 h3 {
-  font-size: 1.5rem;
+  font-size: 1.375rem;
   letter-spacing: -0.01em;
   font-weight: 700;
 }
 
 h4 {
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-h5 {
   font-size: 1.125rem;
   font-weight: 600;
 }
 
-h6 {
+h5 {
   font-size: 1rem;
+  font-weight: 600;
+}
+
+h6 {
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -250,19 +273,18 @@ h6 {
 p {
   margin: 0;
   color: var(--text-secondary);
-  line-height: 1.7;
+  line-height: 1.65;
 }
 
 a {
   color: var(--primary);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
 a:hover {
   color: var(--primary-light);
-  text-decoration: underline;
 }
 
 /* Buttons */
@@ -271,10 +293,10 @@ button, [role="button"] {
   font-weight: 600;
   cursor: pointer;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.4, 1);
+  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   outline: none;
   user-select: none;
 }
@@ -305,11 +327,11 @@ input, textarea, select {
   font-family: var(--font-sans);
   font-size: 1rem;
   padding: 0.875rem 1rem;
-  border: 2px solid var(--border);
-  border-radius: 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
   background: var(--bg);
   color: var(--text);
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   width: 100%;
   box-sizing: border-box;
 }
@@ -318,7 +340,7 @@ input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--primary);
   background: var(--bg);
-  box-shadow: 0 0 0 3px rgba(61, 44, 143, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 55, 92, 0.1);
 }
 
 input::placeholder, textarea::placeholder {
@@ -329,10 +351,10 @@ input::placeholder, textarea::placeholder {
 .card {
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
 }
 
 .card:hover {
@@ -344,14 +366,14 @@ input::placeholder, textarea::placeholder {
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px;
+  gap: 0.4rem;
+  padding: 0.4rem 0.875rem;
+  border-radius: var(--radius-full);
   background: var(--accent-soft);
-  color: var(--primary-deep);
-  font-size: 0.875rem;
+  color: var(--primary);
+  font-size: 0.8rem;
   font-weight: 600;
-  border: 1px solid var(--accent-pink);
+  border: 1px solid rgba(255, 55, 92, 0.15);
 }
 
 /* Text Utilities */
@@ -362,7 +384,7 @@ input::placeholder, textarea::placeholder {
   background-clip: text;
 }
 
-.text-gradient-primary {
+.text-gradient-navy {
   background: var(--gradient-hero);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -380,7 +402,7 @@ input::placeholder, textarea::placeholder {
 /* Responsive */
 @media (max-width: 768px) {
   h1 {
-    font-size: 2rem;
+    font-size: 1.875rem;
   }
 
   h2 {

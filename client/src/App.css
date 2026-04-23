@@ -2,24 +2,24 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f5f3ff;
+  background: var(--bg-soft);
 }
 
 .navbar {
-  background: #fff;
-  padding: 0 2.5rem;
-  height: 60px;
+  background: var(--bg);
+  padding: 0 2rem;
+  height: 64px;
   display: flex;
   align-items: center;
   gap: 1rem;
   position: sticky;
   top: 0;
-  z-index: 10;
-  /* gradient underline instead of flat border */
-  box-shadow: 0 1px 0 0 #ede9fe, 0 2px 12px rgba(124, 58, 237, 0.06);
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--border);
 }
 
-/* Pink accent line across the bottom of navbar */
+/* Brand accent line across the bottom of navbar */
 .navbar::after {
   content: '';
   position: absolute;
@@ -27,27 +27,27 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #1f3563 0%, #e83b7c 50%, #f057a6 100%);
+  background: linear-gradient(90deg, var(--primary-deep) 0%, var(--primary) 50%, var(--primary-light) 100%);
 }
 
 .brand {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #1f3563 30%, #e83b7c 100%);
+  background: linear-gradient(135deg, var(--primary-deep) 30%, var(--primary) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .navTag {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: #e83b7c;
-  background: linear-gradient(135deg, #fce8f3, #fce8f3);
-  border: 1px solid #e83b7c;
-  padding: 0.2rem 0.7rem;
-  border-radius: 999px;
+  color: var(--primary);
+  background: var(--accent-soft);
+  border: 1px solid rgba(255, 55, 92, 0.2);
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-full);
   letter-spacing: 0.3px;
 }
 
