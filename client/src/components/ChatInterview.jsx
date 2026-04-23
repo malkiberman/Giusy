@@ -30,21 +30,21 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
   } = useSpeechRecorder('he-IL');
 
   // 3. הוק ניהול הראיון
-  const {
-    messages,
-    answers,
-    input,
-    setInput,
-    currentIndex,
-    done,
-    submitting,
-    submitError,
-    handleSend,
-    handleSubmit,
-  } = useInterview({ candidateInfo, onConversationEnd, reset: resetSpeech });
-
-  // --- useEffect-ים מתוקנים ---
-
+  // שורה 33 בערך
+const {
+  messages,
+  answers,
+  input,
+  setInput,
+  currentIndex,
+  done,
+  setDone,
+  submitting,
+  setSubmitting, 
+  submitAnswer,
+  handleSend, // הוסיפי את זה כאן
+  reset
+} = useInterview({ candidateInfo, onConversationEnd, reset: resetSpeech });
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, speechInterim]); // שונה ל-speechInterim
@@ -63,15 +63,15 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
 
   // פונקציית הקלטה מתוקנת
   function handleRecordClick() {
-    if (isAudioRec) { // שונה ל-isAudioRec
-      stopRecording();
-      stopSpeech((final) => setInput(final));
-    } else {
-      setInput('');
-      startRecording();
-      startSpeech();
-    }
+  if (isAudioRec) {
+    stopRecording();
+    stopSpeech(); // פשוט לעצור, ה-useEffect כבר יעדכן את ה-Input
+  } else {
+    setInput('');
+    startRecording();
+    startSpeech();
   }
+}
 const handleFinalSubmit = async () => {
   try {
     setSubmitting(true);

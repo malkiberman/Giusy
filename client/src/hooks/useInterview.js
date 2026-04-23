@@ -87,19 +87,22 @@ async function handleSubmit(audioUrlFromComponent = null) {
     if (!input.trim() || done) return;
     submitAnswer(input);
   }
+// hooks/useInterview.js
 
-  return {
-    messages,
-    answers,
-    input,
-    setInput,
-    currentIndex,
-    done,
-    submitting,
-    submitError,
-    handleSend,
-    handleSubmit,
-  };
+return {
+  messages,
+  answers,
+  input,
+  setInput,
+  currentIndex,
+  done,
+  setDone,        // מאפשר לקומפוננטה לסמן סיום
+  submitting,
+  setSubmitting,  // פותר את שגיאת ה-ReferenceError
+  submitAnswer,
+  handleSend,     // חובה להוסיף - זה מה ששולח את ההודעה בלחיצה על Enter
+  reset
+};
 }
 
 

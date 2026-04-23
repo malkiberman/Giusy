@@ -111,27 +111,32 @@ export async function submitInterviewAnalysis(candidateId, answers, audioKey = n
 /**
  * שליחת הראיון המאוחד לשרת (טקסט + אודיו)
  */
+/**
+ * שליחת הראיון המאוחד לשרת (טקסט + אודיו)
+ * מתואם ל-AnalysisController.createAnalysis בשרת
+ */
+// services/api.js
+
 export async function submitUnifiedInterview(candidateId, answers, audioBlob) {
   const formData = new FormData();
   
-  // הוספת הנתונים ל-FormData
+  // השמות חייבים להתאים ל-req.body בשרת
   formData.append('candidateId', candidateId);
-  formData.append('answers', JSON.stringify(answers)); // הפיכה לטקסט עבור השרת
+  formData.append('answers', JSON.stringify(answers)); 
   
+  // השם 'audio' חייב להתאים ל-upload.single("audio") בראוטר
   if (audioBlob) {
-    // שם הקובץ שחברה שלך תזהה ב-Multer
     formData.append('audio', audioBlob, 'interview_audio.webm');
   }
 
-  const response = await fetch(`${BASE_URL}/api/complete-and-analyze`, {
+  const response = await fetch(`${BASE_URL}/api/analysis`, { 
     method: 'POST',
     body: formData,
-    // חשוב: לא לשים Headers של Content-Type, הדפדפן עושה זאת לבד
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || 'שגיאה בשליחת הראיון המאוחד');
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data?.message || 'שגיאה בשמירת הניתוח');
   }
 
   return await response.json();
