@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState,useRef } from 'react';
 import { interviewQuestions } from '../config/interviewQuestions';
 import { useSpeechRecorder } from '../hooks/useSpeechRecorder';
 import useInterview from '../hooks/useInterview';
