@@ -12,10 +12,13 @@ export default function CircularScore({ score, size = 'large' }) {
 
   useEffect(() => { setAnimated(true); }, []);
 
+  // הגנה מפני NaN או ערכים לא תקינים
+  const safeScore = (score !== null && score !== undefined && !isNaN(Number(score))) ? Number(score) : 0;
+  
   const circumference = 2 * Math.PI * cfg.radius;
-  const percentage = Math.min((score / 100) * 100, 100);
+  const percentage = Math.min((safeScore / 100) * 100, 100);
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
-  const color = scoreColor(score);
+  const color = scoreColor(safeScore);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
@@ -40,7 +43,7 @@ export default function CircularScore({ score, size = 'large' }) {
         </svg>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
           <div style={{ fontSize: cfg.fontSize, fontWeight: 800, color, lineHeight: 1 }}>
-            {Math.round(score)}
+            {Math.round(safeScore)}
           </div>
           {cfg.showSub && (
             <div style={{ fontSize: cfg.subFontSize, color: '#7c6f8e', marginTop: '2px' }}>/ 100</div>

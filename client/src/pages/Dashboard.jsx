@@ -13,7 +13,7 @@ export default function Dashboard() {
 
   return (
     <RTLLayout className={styles.page}>
-  
+      <AppHeader />
       
       <div className={styles.header}>
         <div className={styles.titleGroup}>
@@ -23,9 +23,9 @@ export default function Dashboard() {
       </div>
 
       <div className={styles.cards}>
-        <StatCard label="סה״כ מועמדים" value={stats.total} accent="#1f3563" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
+        <StatCard label="סה״כ מועמדים" value={stats.total} accent="#1e285a" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
         <StatCard label="מעל 80%" value={stats.above80} accent="#16a34a" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
-        <StatCard label="50 - 80%" value={stats.mid} accent="#e83b7c" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
+        <StatCard label="50 - 80%" value={stats.mid} accent="#ff375c" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
         <StatCard label="מתחת ל-50%" value={stats.below50} accent="#dc2626" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
       </div>
 

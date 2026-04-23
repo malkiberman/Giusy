@@ -3,10 +3,6 @@ import styles from './Logo.module.css';
 export default function Logo() {
   return (
     <div className={styles.logoWrapper}>
-      <div className={styles.logo}>
-        <span className={styles.logoMain}>ביטוח</span>
-        <span className={styles.logoAlt}>ישיר</span>
-      </div>
       <div className={styles.logoDots}>
         <div className={styles.dotsRow1}>
           <span className={styles.dot1}></span>
@@ -19,6 +15,9 @@ export default function Logo() {
           <span className={styles.dot4}></span>
           <span className={styles.dot5}></span>
         </div>
+      </div>
+      <div className={styles.logo}>
+        <span className={styles.logoMain}>ג&apos;וסי</span>
       </div>
     </div>
   );
