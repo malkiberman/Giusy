@@ -4,9 +4,7 @@ import AppHeader from '../components/AppHeader';
 import styles from './LandingPage.module.css';
 import RTLLayout from '../components/layout/RTLLayout';
 import { CURRENT_CANDIDATE_KEY as LS_KEY } from '../config/storageKeys';
-
-// *** הוספתי את השורה הזו - ודאי שהנתיב נכון אצלך! ***
-import { createCandidate } from '../services/api'; 
+import { createCandidate } from '../services/api';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -23,23 +21,17 @@ export default function LandingPage() {
     return e;
   }
 
- async function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     const errs = validate();
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+    if (Object.keys(errs).length) return setErrors(errs);
 
     setIsLoading(true);
     try {
-      // 1. קריאה לשרת
       const newCandidate = await createCandidate(form);
-      
-      // 2. שמירה ב-LocalStorage - חובה להשתמש ב-newCandidate שחזר מהשרת!
       localStorage.setItem(LS_KEY, JSON.stringify(newCandidate));
-      
-      // 3. ניווט רק אחרי שהשמירה הצליחה
       navigate('/interview');
     } catch (error) {
-      console.error("Error:", error);
       setErrors({ general: 'שגיאה ברישום המועמד.' });
     } finally {
       setIsLoading(false);
@@ -53,51 +45,63 @@ export default function LandingPage() {
 
   return (
     <RTLLayout>
-      <div className={styles.container}>
-        <AppHeader title="Giusy AI" subtitle="התחלת תהליך מיון חכם" />
-        
-        <div className={styles.card}>
-          <form onSubmit={handleSubmit} className={styles.form}>
-            {errors.general && <div style={{color: 'red', marginBottom: '10px'}}>{errors.general}</div>}
-            
-            <Field
-              label="שם מלא"
-              value={form.fullName}
-              onChange={handleChange('fullName')}
-              error={errors.fullName}
-              placeholder="ישראל ישראלי"
+      <div className={styles.page}>
+
+        <div className={styles.topRight}>
+          <img src="/logo.png" className={styles.logo} alt="logo" />
+        </div>
+
+        <div className={styles.container}>
+          <div className={styles.card}>
+
+            <AppHeader
+              title="Giusy AI"
+              subtitle="התחלת תהליך מיון חכם"
             />
-            <Field
-              label="אימייל"
-              type="email"
-              value={form.email}
-              onChange={handleChange('email')}
-              error={errors.email}
-              placeholder="you@example.com"
-            />
-            <Field
-              label="טלפון"
-              type="tel"
-              value={form.phone}
-              onChange={handleChange('phone')}
-              error={errors.phone}
-              placeholder="+972-50-000-0000"
-            />
-            <button 
-              type="submit" 
-              className={styles.submit}
-              disabled={isLoading}
-            >
-              {isLoading ? 'טוען...' : 'התחל ראיון ←'}
-            </button>
-          </form>
+
+            <form onSubmit={handleSubmit} className={styles.form}>
+              {errors.general && (
+                <div style={{ color: 'red' }}>{errors.general}</div>
+              )}
+
+              <Field
+                label="שם מלא"
+                value={form.fullName}
+                onChange={handleChange('fullName')}
+                error={errors.fullName}
+                placeholder="ישראל ישראלי"
+              />
+
+              <Field
+                label="אימייל"
+                type="email"
+                value={form.email}
+                onChange={handleChange('email')}
+                error={errors.email}
+                placeholder="you@example.com"
+              />
+
+              <Field
+                label="טלפון"
+                type="tel"
+                value={form.phone}
+                onChange={handleChange('phone')}
+                error={errors.phone}
+                placeholder="+972-50-000-0000"
+              />
+
+              <button className={styles.submit} disabled={isLoading}>
+                {isLoading ? 'טוען...' : 'התחל ראיון ←'}
+              </button>
+            </form>
+
+          </div>
         </div>
       </div>
     </RTLLayout>
   );
 }
 
-// פונקציית העזר Field חייבת להישאר בסוף הקובץ כפי שהייתה
 function Field({ label, value, onChange, error, placeholder, type = 'text' }) {
   return (
     <div className={styles.field}>

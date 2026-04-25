@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import AppHeader from '../../components/AppHeader';
 import styles from './CandidateAnalysis.module.css';
 import RTLLayout from '../../components/layout/RTLLayout';
 import useCandidate from '../../hooks/useCandidate';
@@ -19,7 +18,6 @@ export default function CandidateAnalysis() {
   if (loading) {
     return (
       <div className={styles.page}>
-        <AppHeader />
         <div>טוען נתונים...</div>
       </div>
     );
@@ -28,7 +26,6 @@ export default function CandidateAnalysis() {
   if (error || !candidate) {
     return (
       <div className={styles.page}>
-        <AppHeader />
         <div>
           <p>{error || 'מועמד לא נמצא.'}</p>
           <button onClick={() => navigate('/dashboard')}>חזרה ללוח הבקרה</button>
@@ -39,8 +36,6 @@ export default function CandidateAnalysis() {
 
   return (
     <RTLLayout className={styles.page}>
-      <AppHeader />
-
       <button className={styles.back} onClick={() => navigate('/dashboard')}>
         חזרה ללוח הבקרה
       </button>

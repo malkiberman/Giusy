@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom';
-import AppHeader from '../components/AppHeader';
 import styles from './Dashboard.module.css';
 import StatCard from '../components/ui/StatCard';
 import ScoreBar from '../components/ui/ScoreBar';
@@ -13,8 +12,6 @@ export default function Dashboard() {
 
   return (
     <RTLLayout className={styles.page}>
-      <AppHeader />
-      
       <div className={styles.header}>
         <div className={styles.titleGroup}>
           <h1 className={styles.title}>לוח מועמדים</h1>
