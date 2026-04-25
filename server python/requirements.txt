@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+librosa
+numpy
+requests
+boto3
+python-dotenv
+gunicorn
+python-multipart

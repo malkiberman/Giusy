@@ -1,58 +1,107 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { interviewQuestions } from '../config/interviewQuestions';
 import { useSpeechRecorder } from '../hooks/useSpeechRecorder';
+import { useAudioRecorder } from '../hooks/useAudioRecorder'; // להוסיף
 import useInterview from '../hooks/useInterview';
-
-
+import { uploadAudioFile } from '../services/api'; // להוסיף
+import { submitUnifiedInterview } from '../services/api'; // ייבוא הפונקציה החדשה
 export default function ChatInterview({ onConversationEnd, candidateInfo }) {
   const bottomRef = useRef(null);
+  const [allRecordings, setAllRecordings] = useState([]); 
 
+  // 1. הוק הקלטת אודיו (Blob ל-S3)
+  const { 
+    isRecording: isAudioRec, // שינינו ל-isAudioRec
+    audioBlob, 
+    startRecording, 
+    stopRecording 
+  } = useAudioRecorder();
+
+  // 2. הוק תמלול (Speech to Text)
   const {
-    isRecording,
-    transcript,
-    interim,
-    supported,
-    error: recError,
-    start,
-    stop,
-    reset,
+    isRecording: isSpeechRec, // שינינו ל-isSpeechRec
+    transcript: speechTranscript, 
+    interim: speechInterim,       
+    supported: isSpeechSupported, 
+    error: speechError,           
+    start: startSpeech,
+    stop: stopSpeech,
+    reset: resetSpeech,           
   } = useSpeechRecorder('he-IL');
 
-  const {
-    messages,
-    answers,
-    input,
-    setInput,
-    currentIndex,
-    done,
-    submitting,
-    submitError,
-    handleSend,
-    handleSubmit,
-  } = useInterview({ candidateInfo, onConversationEnd, reset });
-
+  // 3. הוק ניהול הראיון
+  // שורה 33 בערך
+const {
+  messages,
+  answers,
+  input,
+  setInput,
+  currentIndex,
+  done,
+  setDone,
+  submitting,
+  setSubmitting, 
+  submitAnswer,
+  handleSend, // הוסיפי את זה כאן
+  reset
+} = useInterview({ candidateInfo, onConversationEnd, reset: resetSpeech });
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, interim]);
+  }, [messages, speechInterim]); // שונה ל-speechInterim
 
   useEffect(() => {
-    if (isRecording) {
-      setInput(`${transcript}${interim ? ` ${interim}` : ''}`.trim());
+    if (isSpeechRec) { // שונה ל-isSpeechRec
+      setInput(`${speechTranscript}${speechInterim ? ` ${speechInterim}` : ''}`.trim());
     }
-  }, [transcript, interim, isRecording]);
+  }, [speechTranscript, speechInterim, isSpeechRec, setInput]);
 
+  useEffect(() => {
+    if (audioBlob) {
+      setAllRecordings(prev => [...prev, audioBlob]);
+    }
+  }, [audioBlob]);
+
+  // פונקציית הקלטה מתוקנת
   function handleRecordClick() {
-    if (isRecording) {
-      stop((finalTranscript) => {
-        setInput(finalTranscript);
-      });
-      return;
+  if (isAudioRec) {
+    stopRecording();
+    stopSpeech(); // פשוט לעצור, ה-useEffect כבר יעדכן את ה-Input
+  } else {
+    setInput('');
+    startRecording();
+    startSpeech();
+  }
+}
+const handleFinalSubmit = async () => {
+  try {
+    setSubmitting(true);
+
+    // מציאת ההקלטה הכי ארוכה
+    let longestBlob = null;
+    if (allRecordings.length > 0) {
+      longestBlob = allRecordings.reduce((prev, current) =>
+        (prev.size > current.size) ? prev : current
+      );
     }
 
-    setInput('');
-    start();
-  }
+    // קריאה לפונקציית ה-API המרוכזת
+    const finalAnalysis = await submitUnifiedInterview(
+      candidateInfo?._id || candidateInfo?.id,
+      answers,
+      longestBlob
+    );
 
+    // עדכון שהסתיים בהצלחה
+    onConversationEnd?.(finalAnalysis);
+    setDone(true);
+
+  } catch (err) {
+    console.error("שגיאה בסיום הראיון:", err);
+    // כאן כדאי להוסיף setSubmitError(err.message) כדי שהמשתמש יראה מה קרה
+  } finally {
+    setSubmitting(false);
+  }
+};
   function handleKeyDown(event) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -60,7 +109,7 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
     }
   }
 
-  const isInputDisabled = done || isRecording || submitting;
+  const isInputDisabled = done || isAudioRec || submitting;
 
   return (
     <div style={styles.wrapper}>
@@ -74,7 +123,7 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
         </div>
 
         <div style={styles.headerRight}>
-          {isRecording ? (
+          {isAudioRec ? (
             <div style={styles.recIndicator}>
               <span style={styles.recDot} />
               מקליט...
@@ -104,54 +153,78 @@ export default function ChatInterview({ onConversationEnd, candidateInfo }) {
         <div ref={bottomRef} />
       </div>
 
-      {!supported ? (
+      {!isSpeechSupported ? (
         <div style={styles.warning}>זיהוי דיבור אינו נתמך בדפדפן זה. מומלץ Chrome או Edge.</div>
       ) : null}
-      {recError ? <div style={styles.warning}>{recError}</div> : null}
-      {submitError ? <div style={styles.error}>{submitError}</div> : null}
+      {speechError ? <div style={styles.warning}>{speechError}</div> : null}
 
-      <div style={styles.inputRow}>
-        <div
-          style={{
-            ...styles.textareaWrap,
-            border: isRecording ? '2px solid #ff375c' : '2px solid #e2e6ef',
-            boxShadow: isRecording ? '0 0 0 3px rgba(255,55,92,0.12)' : 'none',
-          }}
-        >
-          <textarea
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={done ? 'הראיון הסתיים.' : isRecording ? 'מאזין...' : 'הקלד/י תשובה...'}
-            disabled={isInputDisabled}
-            style={{ ...styles.textarea, color: isRecording ? '#ff375c' : '#1a1a2e' }}
-          />
-
-          {supported ? (
-            <button
-              onClick={handleRecordClick}
-              disabled={done || submitting}
-              title={isRecording ? 'עצור הקלטה' : 'התחל הקלטה'}
-              style={{
-                ...styles.recBtn,
-                boxShadow: isRecording ? '0 0 0 3px #ff375c, 0 0 0 6px rgba(255,55,92,0.15)' : '0 0 0 2px #e2e6ef',
-                animation: isRecording ? 'recPulse 1.2s ease-in-out infinite' : 'none',
-              }}
-            >
-              {isRecording ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff375c">
-                  <rect x="5" y="5" width="14" height="14" rx="2" />
-                </svg>
-              ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#1e285a">
-                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
-                  <path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
-                </svg>
-              )}
-            </button>
-          ) : null}
+      {/* אזור הקלט או כפתור סיום */}
+      {done ? (
+        <div style={{ padding: '1.25rem 1.5rem', background: '#faf8fc', borderTop: '2px solid #d4d0dc', textAlign: 'center' }}>
+          <button
+            onClick={handleFinalSubmit}
+            disabled={submitting}
+            style={{
+              width: '100%',
+              padding: '1rem',
+              background: 'linear-gradient(135deg, #1f3563, #2d4a80)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '1.1rem',
+              fontWeight: 'bold',
+              cursor: submitting ? 'not-allowed' : 'pointer',
+              boxShadow: '0 4px 12px rgba(31,53,99,0.2)',
+              opacity: submitting ? 0.7 : 1
+            }}
+          >
+            {submitting ? 'מעבד ושומר נתונים...' : 'לחץ כאן לסיום ושליחת הראיון'}
+          </button>
         </div>
-      </div>
+      ) : (
+        <div style={styles.inputRow}>
+          <div
+            style={{
+              ...styles.textareaWrap,
+              border: isAudioRec ? '2px solid #d4a017' : '2px solid #d4d0dc',
+              boxShadow: isAudioRec ? '0 0 0 3px rgba(212,160,23,0.18)' : 'none',
+            }}
+          >
+            <textarea
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={isSpeechRec ? 'מאזין...' : 'הקלד/י תשובה...'}
+
+              style={{ ...styles.textarea, color: isSpeechRec ? '#e83b7c' : '#1f1535' }} disabled={isInputDisabled}
+            />
+
+            {/* כפתור הקלטה */}
+<button
+  onClick={handleRecordClick}
+  style={{
+    ...styles.recBtn,
+    // כאן התיקון: משתמשים ב-isAudioRec כדי להפעיל את האנימציה
+    animation: isAudioRec ? 'recPulse 1.2s ease-in-out infinite' : 'none',
+    background: isAudioRec ? '#ff375c' : '#f0f2f5',
+  }}
+  title={isAudioRec ? 'עצור הקלטה' : 'הקלט תשובה'}
+>
+  {/* כאן התיקון: אם מקליטים (isAudioRec), מציגים ריבוע עצירה. אם לא, מציגים מיקרופון */}
+  {isAudioRec ? (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+      <rect x="6" y="6" width="12" height="12" rx="2" />
+    </svg>
+  ) : (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="#65676b">
+      <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z" />
+      <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+    </svg>
+  )}
+</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -168,6 +241,19 @@ const styles = {
     border: '1px solid #e2e6ef',
     overflow: 'hidden',
     boxShadow: '0 8px 32px rgba(30,40,90,0.1)',
+  },
+  finalSubmitBtn: {
+    width: '100%',
+    padding: '1rem',
+    background: 'linear-gradient(135deg, #1f3563, #2d4a80)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '12px',
+    fontSize: '1.1rem',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    boxShadow: '0 4px 12px rgba(31,53,99,0.2)',
+    transition: 'transform 0.2s',
   },
   header: {
     display: 'flex',

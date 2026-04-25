@@ -44,14 +44,7 @@ export async function createCandidate(payload) {
  * שלב 2: שליחת תשובות הראיון לניתוח (בסוף הראיון)
  * מקשר בין ה-ID הקיים לתשובות החדשות
  */
-export async function submitInterviewAnalysis(candidateId, answers) {
-  // שולחים ל-endpoint של ה-analysis את ה-ID והתשובות
-  const data = await request('/api/analysis', {
-    method: 'POST',
-    body: JSON.stringify({ candidateId, answers }),
-  });
-  return data; // מחזיר את אובייקט הניתוח (Analysis)
-}
+
 
 /**
  * שליפת כל המועמדים (עבור דף הניהול/Admin)
@@ -73,5 +66,83 @@ export async function fetchCandidateById(id) {
 // פונקציה תומכת אחורנית למי שעדיין משתמש בשם הישן
 export const submitInterview = async (payload) => {
     // אם הקוד הישן שלכן שולח אובייקט עם candidateId, נתמוך בזה
-    return await submitInterviewAnalysis(payload.candidateId, payload.answers);
+    return await submitInterviewAnalysis(payload.candidateId, payload.answers, payload.audioKey);
 };
+
+
+
+// api.js
+
+export async function uploadAudioFile(audioBlob, candidateEmail) {
+  if (!audioBlob) return null;
+
+  const formData = new FormData();
+  // שם הקובץ יהיה המייל של המועמד (למשל: test@gmail.com.webm)
+  const fileName = `${candidateEmail.replace(/[^a-zA-Z0-9]/g, '_')}.webm`; 
+  formData.append('candidateId', candidateId);
+  // השרת מקבל את זה כסטרינג בגלל ה-FormData
+  formData.append('answers', JSON.stringify(answers)); 
+  
+  if (audioBlob) {
+    formData.append('audio', audioBlob, 'interview_audio.webm');
+  }
+
+  const response = await fetch(`${BASE_URL}/api/analysis`, { 
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) throw new Error('העלאת הקלטה נכשלה');
+  
+  const data = await response.json();
+  return data.url; // השרת צריך להחזיר את הקישור הסופי ב-S3
+}
+
+// עדכון פונקציית שליחת הראיון שתקבל גם את ה-audioUrl
+export async function submitInterviewAnalysis(candidateId, answers, audioKey = null) {
+  return await request('/api/analysis', {
+    method: 'POST',
+    body: JSON.stringify({ 
+      candidateId, 
+      answers, 
+      audioKey // הוספת הקישור לגוף הבקשה
+    }),
+  });
+}
+
+
+// api.js
+
+/**
+ * שליחת הראיון המאוחד לשרת (טקסט + אודיו)
+ */
+/**
+ * שליחת הראיון המאוחד לשרת (טקסט + אודיו)
+ * מתואם ל-AnalysisController.createAnalysis בשרת
+ */
+// services/api.js
+
+export async function submitUnifiedInterview(candidateId, answers, audioBlob) {
+  const formData = new FormData();
+  
+  // השמות חייבים להתאים ל-req.body בשרת
+  formData.append('candidateId', candidateId);
+  formData.append('answers', JSON.stringify(answers)); 
+  
+  // השם 'audio' חייב להתאים ל-upload.single("audio") בראוטר
+  if (audioBlob) {
+    formData.append('audio', audioBlob, 'interview_audio.webm');
+  }
+
+  const response = await fetch(`${BASE_URL}/api/analysis`, { 
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data?.message || 'שגיאה בשמירת הניתוח');
+  }
+
+  return await response.json();
+}
