@@ -205,3 +205,8 @@
   font-weight: 700;
   letter-spacing: 0.02em;
 }
+
+:root {
+  --medium: #facc15;
+  --medium-soft: #fef9c3;
+}

@@ -22,8 +22,7 @@ export default function Dashboard() {
       <div className={styles.cards}>
         <StatCard label="סה״כ מועמדים" value={stats.total} accent="#1e285a" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
         <StatCard label="מעל 80%" value={stats.above80} accent="#16a34a" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
-        <StatCard label="50 - 80%" value={stats.mid} accent="#ff375c" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
-        <StatCard label="מתחת ל-50%" value={stats.below50} accent="#dc2626" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
+        <StatCard  label="50 - 80%"  value={stats.mid}  accent="#facc15"  className={styles.statCard}  valueClassName={styles.statValue}  labelClassName={styles.statLabel}/>        <StatCard label="מתחת ל-50%" value={stats.below50} accent="#dc2626" className={styles.statCard} valueClassName={styles.statValue} labelClassName={styles.statLabel} />
       </div>
 
       <div style={{ padding: '1.5rem 0', marginBottom: '1.5rem' }}>
@@ -129,7 +128,7 @@ function RangeSlider({ min, max, value, onChange }) {
 
   return (
     <div style={{ flex: 1, minWidth: '280px' }}>
-      <div style={{ position: 'relative', height: '8px', background: 'linear-gradient(90deg, #dc2626 0%, #ff375c 35%, #059669 100%)', borderRadius: '4px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(30,40,90,0.1)' }}>
+      <div style={{ position: 'relative', height: '8px', background: 'linear-gradient(90deg, #dc2626 0%, #facc15 50%, #059669 100%)', borderRadius: '4px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(30,40,90,0.1)' }}>
         <div
           style={{
             position: 'absolute',

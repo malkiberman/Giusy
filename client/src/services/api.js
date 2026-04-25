@@ -122,35 +122,27 @@ export async function submitInterviewAnalysis(candidateId, answers, audioKey = n
  */
 // services/api.js
 
-// services/api.js
-
 export async function submitUnifiedInterview(candidateId, answers, audioBlob) {
   const formData = new FormData();
   
+  // השמות חייבים להתאים ל-req.body בשרת
   formData.append('candidateId', candidateId);
-
-  // התיקון: אנחנו שולחים רק את המחרוזות של התשובות כדי להתאים ל-Schema ב-DB
-  // במקום לשלוח מערך אובייקטים, אנחנו שולחים מערך של טקסטים בלבד
-  const simpleAnswers = answers.map(a => a.answer); 
+  formData.append('answers', JSON.stringify(answers)); 
   
-  // הפיכה ל-JSON string כפי שהקונטרולר מצפה
-  formData.append('answers', JSON.stringify(simpleAnswers));
-
+  // השם 'audio' חייב להתאים ל-upload.single("audio") בראוטר
   if (audioBlob) {
-    // שליחת הקובץ תחת השם 'audio' כפי שמוגדר ב-Router (upload.single("audio"))
-    formData.append('audio', audioBlob, 'recording.webm');
+    formData.append('audio', audioBlob, 'interview_audio.webm');
   }
 
-  const response = await fetch(`${BASE_URL}/api/analysis`, {
+  const response = await fetch(`${BASE_URL}/api/analysis`, { 
     method: 'POST',
     body: formData,
-    // חשוב: לא להוסיף Headers של Content-Type, ה-Browser עושה זאת אוטומטית ל-FormData
   });
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'העלאת הנתונים נכשלה');
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data?.message || 'שגיאה בשמירת הניתוח');
   }
-  
+
   return await response.json();
 }
