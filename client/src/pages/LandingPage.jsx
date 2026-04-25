@@ -47,10 +47,6 @@ export default function LandingPage() {
     <RTLLayout>
       <div className={styles.page}>
 
-        <div className={styles.topRight}>
-          <img src="/logo.png" className={styles.logo} alt="logo" />
-        </div>
-
         <div className={styles.container}>
           <div className={styles.card}>
 
