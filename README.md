@@ -68,7 +68,7 @@ Ranking Engine → Scoring & Matching Logic
 
 ## 🎥 Demo
 
-> (Add here a short GIF or video of the system in action)
+> https://giusy-ai.onrender.com
 
 ---
 
